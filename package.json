@@ -1,0 +1,12 @@
+{
+  "name": "ephemeral-time",
+  "version": "0.1.0",
+  "description": "Ephemeral Time - p5.js interactive visualization",
+  "private": true,
+  "scripts": {
+    "dev": "npx http-server ./ -p 8000 --silent",
+    "start": "npx http-server ./ -p 8000 --silent"
+  },
+  "author": "",
+  "license": "MIT"
+}

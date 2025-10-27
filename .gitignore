@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# p5.js 라이브러리는 추적하지 않음 (로컬 다운로드)
+lib/p5.min.js
+lib/p5.sound.min.js
+
+# IDE & 에디터
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 빌드 아티팩트
+dist/
+build/
+
+# npm / node artifacts
+package-lock.json
+yarn.lock
+
+
+# 로컬 환경 설정
+.env
+.env.local
+
+# 임시 파일
+*.log
+*.tmp
+
+# OS 특정 파일
+Thumbs.db
+.DS_Store
+
+# 개인 노트 (선택 사항)
+notes/
+TODO.txt

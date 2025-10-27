@@ -1,124 +1,128 @@
-# Ephemeral Time - p5.js 인터랙티브 시각화
+# Ephemeral Time - p5.js Interactive Visualization
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.1.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime) ![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Here-brightgreen)
 
-[한국어](README.ko.md) | [English](README.en.md)
+![p5.js](https://img.shields.io/badge/p5%20js-ED225D?style=for-the-badge&logo=p5dotjs&logoColor=white) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
 
-시간의 흐름을 물감의 확산으로 표현한 인터랙티브 아트 프로젝트입니다.
-매 초마다 새로운 잉크 방울이 생성되고 유체 흐름에 따라 퍼져나갑니다. 시간이 지남에 따라 점진적으로 사라지는 "에페메랄(Ephemeral)" 효과를 구현합니다.
+![Made with JavaScript](https://img.shields.io/badge/Made%20with-JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) ![Made with p5.js](https://img.shields.io/badge/Made%20with-p5.js-ED225D?style=for-the-badge&logo=p5.js&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+
+[한국어](README.ko.md) | [English](README.en.md) | [日本語](README.ja.md)
+
+An interactive art project that expresses the passage of time as ink spreading on paper.
+A new ink drop is generated every second and spreads according to fluid flow. It implements an "ephemeral" effect that gradually fades over time.
 
 ---
 
-## 프로젝트 구조
+## Project Structure
 
 ```
 /EphemeralTime/
 │
-├── index.html           # 프로젝트 진입점
-├── style.css            # 캔버스 및 전체 레이아웃 스타일
-├── sketch.js            # p5.js 메인 로직 (setup(), draw())
-├── .gitignore           # Git 추적 제외 파일 설정
-├── README.md            # 프로젝트 문서
+├── index.html           # Project entry point
+├── style.css            # Canvas and overall layout styles
+├── sketch.js            # p5.js main logic (setup(), draw())
+├── .gitignore           # Git ignore file settings
+├── README.md            # Project documentation
 │
 ├── js/
-│   ├── Clock.js         # 시간 추적 및 "새로운 초" 감지
-│   ├── InkDrop.js       # 개별 잉크 방울 클래스
-│   ├── Fluid.js         # Perlin Noise 기반 유체 시뮬레이션
-│   └── Audio.js         # 오디오 효과 관리 (향후 구현)
+│   ├── Clock.js         # Time tracking and "new second" detection
+│   ├── InkDrop.js       # Individual ink drop class
+│   ├── Fluid.js         # Perlin Noise based fluid simulation
+│   └── Audio.js         # Audio effects management (future implementation)
 │
-├── lib/                 # 외부 라이브러리
-│   ├── p5.js            # p5.js 라이브러리
-│   └── p5.sound.js      # p5.sound 라이브러리
+├── lib/                 # External libraries
+│   ├── p5.js            # p5.js library
+│   └── p5.sound.js      # p5.sound library
 │
-└── sounds/              # 오디오 파일 (향후 추가)
+└── sounds/              # Audio files (future addition)
     ├── drop.mp3
     └── ambience.mp3
 ```
 
 ---
 
-## 핵심 기능
+## Core Features
 
-### 1. **시간 관리 (Clock.js)**
-- 현재 시스템 시간 추적
-- "새로운 초" 감지 → 새 잉크 방울 생성
-- "새로운 시간" 감지 → 시간 세척 효과 트리거
-- 시간 진행률(hourProgress) 반환 (시각/청각 효과용)
+### 1. **Time Management (Clock.js)**
+- Current system time tracking
+- "New second" detection → New ink drop creation
+- "New hour" detection → Hour cleansing effect trigger
+- Time progress (hourProgress) return (for visual/audio effects)
 
-### 2. **잉크 방울 (InkDrop.js)**
-- 개별 잉크 방울의 상태 관리 (위치, 크기, 색상, 불투명도, 수명)
-- 유체 필드의 영향을 받아 이동
-- 시간 경과에 따라 서서히 투명해짐
+### 2. **Ink Drops (InkDrop.js)**
+- Individual ink drop state management (position, size, color, opacity, lifespan)
+- Movement influenced by fluid field
+- Gradually becomes transparent over time
 
-### 3. **유체 시뮬레이션 (Fluid.js)**
-- Perlin Noise 기반 벡터 필드 생성
-- 시간에 따른 부드러운 기본 흐름
-- 마우스 인터랙션으로 소용돌이(vortex) 생성
+### 3. **Fluid Simulation (Fluid.js)**
+- Perlin Noise based vector field generation
+- Smooth base flow over time
+- Mouse interaction creates vortex effects
 
-### 4. **오디오 (Audio.js - 향후 구현)**
-- 잉크 방울 생성 시 사운드 효과
-- 시간대별 앰비언트 사운드
-- 마우스 속도 기반 이펙트 변조
-
----
-
-## 시각적 레이어 구조 (성능 최적화)
-
-**3개의 `p5.Graphics` 레이어를 사용하여 매시간 3600개의 객체 처리:**
-
-| 레이어 | 이름 | 역할 | 업데이트 빈도 |
-|--------|------|------|------------|
-| 1 | `bgLayer` | 배경 (종이 질감) | setup() / 정각마다 |
-| 2 | `historyLayer` | 누적된 잉크 (과거) | 잉크 방울 "죽을 때" |
-| 3 | `activeLayer` | 활성 잉크 (현재) | 매 프레임 |
-
-**렌더링 순서:** bgLayer → historyLayer → activeLayer
+### 4. **Audio (Audio.js - Future Implementation)**
+- Sound effects when ink drops are created
+- Ambient sounds by time period
+- Effect modulation based on mouse speed
 
 ---
 
-## 시간대별 색상 팔레트
+## Visual Layer Structure (Performance Optimization)
 
-| 시간대 | 주 색상 | 보조 색상 |
-|--------|--------|----------|
-| 00:00 ~ 06:00 (자정~새벽) | 심남색 (`#1a1a2e`) | 파랑 (`#0f3460`) |
-| 06:00 ~ 12:00 (아침~정오) | 노랑 (`#ffd93d`) | 주황 (`#ff6b6b`) |
-| 12:00 ~ 18:00 (오후) | 초록 (`#6bcf7f`) | 청록 (`#4d96ff`) |
-| 18:00 ~ 24:00 (저녁~밤) | 보라 (`#a855f7`) | 분홍 (`#ec4899`) |
+**Using 3 `p5.Graphics` layers to handle 3600 objects per hour:**
 
----
+| Layer | Name | Role | Update Frequency |
+|-------|------|------|-----------------|
+| 1 | `bgLayer` | Background (paper texture) | setup() / every hour |
+| 2 | `historyLayer` | Accumulated ink (past) | when ink drops "die" |
+| 3 | `activeLayer` | Active ink (current) | every frame |
 
-## 기술 스택
-
-- **p5.js**: 캔버스 렌더링 및 기본 그래픽
-- **JavaScript (ES6+)**: 모든 모듈 개발
-- **Perlin Noise**: 유체 시뮬레이션
-- **p5.sound**: 오디오 이펙트 (향후)
+**Rendering Order:** bgLayer → historyLayer → activeLayer
 
 ---
 
-## 개발 진행 상황
+## Time-based Color Palette
 
-- [x] 프로젝트 구조 설계
-- [ ] Clock.js 구현
-- [ ] InkDrop.js 구현
-- [ ] Fluid.js 구현
-- [ ] sketch.js 메인 로직 구현
-- [ ] HTML & CSS 작성
-- [ ] Audio.js 구현 및 사운드 파일 추가
-- [ ] 시간 세척 효과 디테일 조정
+| Time Period | Primary Color | Secondary Color |
+|-------------|---------------|-----------------|
+| 00:00 ~ 06:00 (Midnight~Dawn) | Dark Navy (`#1a1a2e`) | Blue (`#0f3460`) |
+| 06:00 ~ 12:00 (Morning~Noon) | Yellow (`#ffd93d`) | Orange (`#ff6b6b`) |
+| 12:00 ~ 18:00 (Afternoon) | Green (`#6bcf7f`) | Cyan (`#4d96ff`) |
+| 18:00 ~ 24:00 (Evening~Night) | Purple (`#a855f7`) | Pink (`#ec4899`) |
 
 ---
 
-## 실행 방법
+## Technology Stack
 
-1. 프로젝트 디렉토리 열기
-2. 로컬 서버 실행 (예: `python -m http.server 8000`)
-3. 브라우저에서 `http://localhost:8000` 접속
+- **p5.js**: Canvas rendering and basic graphics
+- **JavaScript (ES6+)**: All module development
+- **Perlin Noise**: Fluid simulation
+- **p5.sound**: Audio effects (future)
 
 ---
 
-## 참고사항
+## Development Progress
 
-- 모든 모듈은 독립적으로 테스트 가능하도록 설계됨
-- 성능 최적화를 위해 그래픽 레이어 분리
-- 향후 GLSL 셰이더로 업그레이드 가능한 구조
+- [x] Project structure design
+- [ ] Clock.js implementation
+- [ ] InkDrop.js implementation
+- [ ] Fluid.js implementation
+- [ ] sketch.js main logic implementation
+- [ ] HTML & CSS writing
+- [ ] Audio.js implementation and sound file addition
+- [ ] Hour cleansing effect detail adjustment
+
+---
+
+## How to Run
+
+1. Open project directory
+2. Run local server (e.g., `python -m http.server 8000`)
+3. Access `http://localhost:8000` in browser
+
+---
+
+## Notes
+
+- All modules are designed to be testable independently
+- Graphic layers separated for performance optimization
+- Structure upgradeable to GLSL shaders in the future

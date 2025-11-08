@@ -261,6 +261,9 @@ function mouseDragged() {
 }
 
 function mousePressed() {
+    // Start audio context on first user interaction
+    userStartAudio();
+    
     // Could implement pause-on-click here
     // For now, just prevent default
     return false;

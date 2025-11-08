@@ -1,6 +1,7 @@
 /**
  * InkDrop.js - Individual ink drop class
  * Represents ink drops generated at 3 scales: second (1x), minute (6x), hour (36x)
+ * 
  */
 class InkDrop {
     constructor(x, y, color, type = 'second', config = CONFIG) {

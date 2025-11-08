@@ -32,6 +32,7 @@ class Audio {
             if (this.config.audio.dropSound.useGenerative) {
                 this.dropEnv = new p5.Envelope();
                 const envConfig = this.config.audio.dropSound.oscillator;
+                
                 this.dropEnv.setADSR(
                     envConfig.attack,
                     envConfig.decay,
@@ -90,6 +91,11 @@ class Audio {
         if (this.isPaused) return;
 
         try {
+            // Debug: check config
+            console.log('Audio config:', this.config.audio);
+            console.log('DropSound oscillator:', this.config.audio.dropSound.oscillator);
+            console.log('PanRange:', this.config.audio.dropSound.oscillator.panRange);
+            
             // Create new oscillator for each drop (allows polyphony)
             const osc = new p5.Oscillator(this.config.audio.dropSound.oscillator.type);
             
@@ -100,7 +106,7 @@ class Audio {
             osc.freq(freq + freqVar);
             
             // Pan based on x position
-            const [panMin, panMax] = this.config.audio.dropSound.panRange;
+            const [panMin, panMax] = this.config.audio.dropSound.oscillator.panRange;
             const pan = map(x, 0, width, panMin, panMax);
             osc.pan(pan);
             

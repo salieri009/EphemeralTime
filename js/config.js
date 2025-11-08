@@ -169,6 +169,42 @@ const CONFIG = {
         backgroundColor: [255, 255, 255],    // pure white
         useFullscreen: true,
         pixelDensity: 1                      // 1 = standard, 2 = retina
+    },
+
+    // ========================================
+    // AUDIO SYSTEM (Generative Synthesis)
+    // ========================================
+    audio: {
+        enabled: true,                       // master audio switch
+
+        // Drop sound (synthesized oscillator)
+        dropSound: {
+            useGenerative: true,             // use synthesized sound vs. samples
+            volume: 0.1,                     // master volume (0-1)
+
+            oscillator: {
+                type: 'sine',                // 'sine', 'triangle', 'sawtooth', 'square'
+                attack: 0.01,                // envelope attack time
+                decay: 0.1,                  // envelope decay time
+                sustain: 0.2,                // envelope sustain level
+                release: 0.3,                // envelope release time
+                freqRange: [200, 800],       // frequency range for minute variation
+                panRange: [-0.5, 0.5]        // stereo panning range (-1 to 1)
+            }
+        },
+
+        // Ambient background sound
+        ambient: {
+            enabled: true,                   // enable ambient sound
+            useNoise: true,                  // pink noise vs. oscillator
+            baseVolume: 0.05,                // base volume (0-1)
+
+            filter: {
+                baseFreq: 1000,              // lowpass filter base frequency
+                resonance: 5,                // filter resonance
+                freqRange: [200, 2000]       // frequency range for density mapping
+            }
+        }
     }
 };
 

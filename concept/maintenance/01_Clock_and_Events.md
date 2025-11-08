@@ -1,3 +1,63 @@
+# 01. Clock and Event System
+
+## 1. The Role of Clock.js
+
+`Clock.js` is like the heartbeat of this project. Its sole responsibility is to **track time and emit named events based on changes in time**. `Clock.js` itself does not draw anything to the screen, nor does it know how other modules should behave.
+
+This design completely separates time logic from rendering/interaction logic. It allows for future time-based features to be added simply by adding a new event listener in `sketch.js`, without needing to modify `Clock.js`.
+
+## 2. Event System (EventEmitter Pattern)
+
+`Clock.js` implements a simple `EventEmitter` pattern.
+
+-   **`on(eventName, callback)`**: Registers a function (callback) to be executed when a specific event occurs.
+-   **`emit(eventName, data)`**: Notifies all registered callbacks that a specific event has occurred and passes relevant data to them.
+
+### Usage Example (in `sketch.js`)
+
+```javascript
+// Register event listeners within the setup() function
+function setupEventListeners() {
+    // Call createMinuteDrop whenever a 'minute' event occurs
+    clock.on('minute', (data) => {
+        if (!isPaused) createMinuteDrop(data);
+    });
+    
+    // Call createChimeDrop whenever a 'chime' event occurs
+    clock.on('chime', (data) => {
+        if (!isPaused) createChimeDrop(data);
+    });
+}
+```
+
+## 3. Emitted Event Types
+
+The `update()` method of `Clock.js` is called every frame and internally emits the following events when the second, minute, or hour changes.
+
+| Event Name | Trigger Condition                       | Data Passed (`data`)       | Primary Use                               |
+| :--------- | :-------------------------------------- | :------------------------- | :---------------------------------------- |
+| `second`   | Every time the second changes           | `{ second, minute, hour }` | Calls `createSecondDrop`                  |
+| `minute`   | Every time the minute changes           | `{ minute, hour }`         | Calls `createMinuteDrop`                  |
+| `hour`     | Every time the hour changes             | `{ hour }`                 | Calls `resetCanvasForNewHour`, `createHourDrop` |
+| `chime`    | At 15, 30, and 45 minutes past the hour | `{ minute, hour }`         | Calls `createChimeDrop` (ripple effect)   |
+
+## 4. Extensibility
+
+-   **Adding a New Time-Based Event**:
+    -   For example, if you want to "add a special effect every 30 seconds," you can add the following logic to the `update()` method of `Clock.js`:
+      ```javascript
+      // Inside update() in Clock.js
+      if (newSecond !== this.lastSecond && newSecond % 30 === 0) {
+          this.emit('half-minute', { second: newSecond });
+      }
+      ```
+    -   Then, in `sketch.js`, you can listen for the `'half-minute'` event to implement the desired behavior. No modification to existing code is needed.
+
+-   **Changing the Time Display Format**:
+    -   You can easily change the time format displayed on the UI by modifying only the `getTimeString()` method.
+
+---
+
 # 01. 시계 및 이벤트 시스템
 
 ## 1. Clock.js의 역할

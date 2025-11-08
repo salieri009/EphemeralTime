@@ -1,3 +1,55 @@
+# 04. Color and Audio System
+
+This document explains `ColorManager.js` and `Audio.js`, which are responsible for the aesthetic experience of the project.
+
+## 1. ColorManager.js: The Color of Time
+
+`ColorManager` is responsible for expressing the flow of time and user interaction through color.
+
+### Core Features
+
+1.  **Time-Based Gradient**:
+    -   The `buildGradient()` method pre-generates a color gradient for 60 minutes (0-59) using the key colors defined in `config.js`.
+    -   The `getColorForTime(minute, hour)` method finds and returns the color corresponding to the given time from this gradient. It can also add subtle brightness variations based on the hour.
+
+2.  **Saturation Change by Turbulence (Pillar 3)**:
+    -   The `update(turbulence)` method receives the current turbulence value from `sketch.js` and updates the `currentTurbulence` property.
+    -   Within the `getColorByType()` method (or by modifying `getColorForTime`), before returning a color, it **reduces the saturation** in proportion to the `currentTurbulence` value.
+    -   To do this, it uses `p5.js`'s `colorMode(HSB)` to convert the color to the HSB (Hue, Saturation, Brightness) model, adjusts the saturation, and then restores `colorMode(RGB)`.
+    -   **UX**: When the user moves the mouse erratically, causing 'distraction,' the entire screen becomes nearly monochrome, visually representing a chaotic mental state.
+
+### Extensibility
+
+-   **Adding New Color Themes**: You can easily change the entire project's color theme by simply modifying the `colors.minuteGradient.keyColors` array in `config.js`.
+-   **Event-Based Color Changes**: You can implement logic to temporarily change colors upon specific events (e.g., `chime`) by adding it to `ColorManager` and calling it from `sketch.js`.
+
+## 2. Audio.js: The Sound of Time
+
+`Audio.js` uses the p5.sound library to create generative audio. That is, instead of using audio files, it synthesizes sound in real-time.
+
+### Core Features
+
+1.  **Drop Sound**:
+    -   The `playDropSound(x, minute)` method is called when an `InkDrop` is created.
+    -   It uses p5.Envelope and p5.Oscillator to generate a short, soft "drip" sound.
+    -   The sound's `pan` (left-right position) is mapped to the drop's `x` coordinate, and its `pitch` is mapped to the `minute` value, causing the sound to subtly change with the flow of time.
+
+2.  **Ambient Sound**:
+    -   In `initGenerativeAudio()`, it uses p5.Noise to generate a soft background noise and a p5.Filter to leave only a specific frequency band.
+    -   This gives the project a sense of depth and continuous presence.
+
+3.  **Sound Modulation by Turbulence (Pillar 3)**:
+    -   The `updateTurbulence(turbulence)` method receives the turbulence value from `sketch.js`.
+    -   This value is used to control the filter's `frequency` and `resonance(Q)` values for the ambient sound.
+    -   **UX**: As the user's attention gets scattered (turbulence increases), the ambient sound becomes rougher and more complex, audibly representing an unstable psychological state.
+
+### Extensibility
+
+-   **Varying Drop Sounds**: The `playDropSound` method can be extended to produce different sounds based on the `InkDrop`'s `type`. For example, a new oscillator could be added to give the `hour` drop a deeper, longer resonance.
+-   **User Settings**: More audio-related settings can be added to `config.js` to allow users to control volume, sound types, etc.
+
+---
+
 # 04. 색상 및 오디오 시스템
 
 이 문서는 프로젝트의 미적 경험을 담당하는 `ColorManager.js`와 `Audio.js`에 대해 설명합니다.

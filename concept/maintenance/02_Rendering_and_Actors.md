@@ -1,3 +1,53 @@
+# 02. Rendering and Actors
+
+This document explains the core visual elements drawn on the screen: `InkDrop` and `SunDrop`. They are referred to as "Actors," and each has an independent lifecycle and behavior.
+
+## 1. InkDrop.js: The Droplets of Time
+
+`InkDrop` is the basic unit that visually represents the flow of time (seconds, minutes, hours).
+
+### Lifecycle
+
+1.  **Creation**:
+    -   Created by `new InkDrop(...)` in `sketch.js` in response to events from the `clock`.
+    -   Upon creation, its size, lifespan, and opacity are determined based on its `type` ('second', 'minute', 'hour', 'chime') according to settings in `config.js`.
+
+2.  **Active Life**:
+    -   The `update()` method is called every frame.
+    -   Its position continuously changes based on the `fluid` field and the repulsion force from `sunDrop`.
+    -   As its `age` increases, it gradually becomes more transparent.
+
+3.  **Stamping to History**:
+    -   When the `shouldStamp()` method returns `true` (upon reaching a certain age or opacity), it "stamps" its current appearance onto the `historyLayer`.
+    -   The `hasBeenStamped` flag is set to `true` to prevent duplicate stamping.
+
+4.  **Death**:
+    -   When the `isDead()` method returns `true` (when its lifespan is over), it is removed from the `activeDrops` array.
+    -   Just before dying, if it hasn't left a stain yet, it leaves its final appearance on the `historyLayer`.
+
+### Extensibility
+
+-   **Adding a New Type of Drop**:
+    -   You can easily create a new type of drop by adding a new type (e.g., `specialEvent`) to the `drops` object in `config.js` and specifying that type when creating an `InkDrop`.
+    -   You will need to add logic to the `InkDrop`'s `constructor` to set the size, lifespan, etc., for the new type.
+
+## 2. SunDrop.js: The Trajectory of Hours
+
+`SunDrop` is a special actor that, unlike `InkDrop`, is not affected by the fluid flow. It serves to intuitively indicate the macroscopic flow of time (the hour).
+
+### Key Features
+
+-   **Independent Movement**: The `update(minute)` method takes the current 'minute' as an argument and directly calculates its `x` position based on the canvas width. It is positioned on the left at `0 minutes` and on the right at `59 minutes`.
+-   **Repulsion**: The `getRepulsionForce(dropX, dropY)` method calculates a force that pushes away nearby `InkDrop`s. This force is added to the movement of each drop in the `updateAndRenderDrops` function in `sketch.js`. This visually emphasizes the importance of the `SunDrop`.
+-   **Unique Rendering**: The `render()` method draws a central core and a softly pulsing corona (halo), visually distinguishing it from other drops.
+
+### Extensibility
+
+-   **Changing Movement**: If you want to change the `SunDrop`'s movement to a different trajectory (e.g., circular) instead of horizontal, you only need to modify the position calculation logic in the `update()` method.
+-   **Adding Interactions**: If you want to add other interactions besides pushing other drops (e.g., changing the color of nearby drops), you can add a new method similar to `getRepulsionForce` and utilize it in `sketch.js`.
+
+---
+
 # 02. 렌더링 및 액터(Actors)
 
 이 문서에서는 화면에 그려지는 핵심 시각적 요소인 `InkDrop`과 `SunDrop`에 대해 설명합니다. 이들은 "액터(Actor)"로 지칭되며, 각각 독립적인 생명주기와 동작 방식을 가집니다.

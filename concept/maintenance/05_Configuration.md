@@ -1,3 +1,69 @@
+# 05. Configuration
+
+## 1. The Role of config.js
+
+The `config.js` file is the "Rulebook" for this project. It centrally manages all numbers, colors, and behaviors that could be hardcoded into the code by defining them as constants in this file.
+
+**Key Advantages**:
+-   **Maintainability**: When you want to change a specific value (e.g., drop size, color), you only need to modify `config.js` instead of searching through multiple files.
+-   **Readability**: In the code, using a meaningful name like `drop.size = CONFIG.drops.second.baseSize;` instead of `drop.size = 15;` makes the code's intent clear.
+-   **Ease of Experimentation**: You can easily adjust various parameters to quickly change the feel of the project.
+
+## 2. Main Configuration Sections
+
+The `CONFIG` object is structured into several sub-objects.
+
+### `drops`
+-   Defines the base size, lifespan, opacity, etc., for `second`, `minute`, and `hour` type drops.
+-   `sizeMultiplier` allows for easy adjustment of the size ratio between drops.
+
+### `colors`
+-   `minuteGradient`: Defines the key colors and steps for generating the 60-minute gradient.
+-   `hourVariation`: Sets whether and by how much to adjust the color's brightness based on the hour.
+
+### `performance`
+-   `maxActiveDrops`: Limits the maximum number of active drops that can exist on the screen simultaneously to maintain performance.
+-   `stampOpacityThreshold`, `stampAgeThreshold`: Conditions that determine when a drop leaves a stain on the `historyLayer`.
+
+### `fluid`
+-   `resolution`, `noiseScale`, `noiseSpeed`: Determine the characteristics of the Perlin Noise-based fluid field.
+-   `turbulence`: Core parameters for the **Reservoir of Attention (Pillar 3)** system. Sets the decay rate, activation conditions, etc., for turbulence.
+-   `mouseForce`: Adjusts the strength of the force the user applies to the fluid with the mouse.
+
+### `sun` (Pillar 1)
+-   Defines the `SunDrop`'s size, y-position, color, pulsing effect, and the radius and strength of its repulsion force on nearby drops.
+
+### `chime` (Pillar 2)
+-   Settings for the ripple pattern when quarterly chime drops are created. Defines the number of drops and the radius of the pattern.
+
+### `interaction`
+-   `fluidDrag`: Toggles whether mouse dragging affects the fluid.
+-   `showDebugInfo`: Toggles the display of debug information on the screen.
+
+## 3. Best Practices for Adding New Features
+
+When adding a new feature, it's a good practice to always start by adding the relevant settings to `config.js`.
+
+**Example**: Let's say you want to add a "screen shake effect" under certain conditions.
+
+1.  **Add settings to `config.js`**:
+    ```javascript
+    // Inside the CONFIG object
+    effects: {
+        screenShake: {
+            enabled: true,
+            intensity: 5,
+            duration: 30 // frames
+        }
+    }
+    ```
+
+2.  **Use in code**:
+    -   When writing the logic to trigger the effect in `sketch.js`, reference the settings like `CONFIG.effects.screenShake.intensity`.
+    -   This way, you can later tune the shake intensity or duration easily from `config.js` without modifying the code.
+
+---
+
 # 05. 설정 (Configuration)
 
 ## 1. config.js의 역할

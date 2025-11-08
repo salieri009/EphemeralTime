@@ -1,6 +1,11 @@
 ﻿/**
  * sketch.js - Ephemeral Time v0.2
  * Event-driven architecture for "The Reservoir of Attention"
+ * 
+ * ARCHITECTURE:
+ * - Dependency Injection for particle creation
+ * - Shared renderers for performance
+ * - Clear separation of concerns
  */
 
 let clock, colorManager, fluid, audio, sunDrop;
@@ -10,6 +15,9 @@ let activeDrips = []; // dripping ink trails
 let isPaused = false;
 let turbulenceLevel = 0;
 
+// Shared rendering strategies (performance optimization)
+let stampRenderer, splatterRenderer;
+
 function setup() {
     createCanvas(windowWidth, windowHeight);
     
@@ -18,6 +26,10 @@ function setup() {
     fluid = new Fluid(CONFIG.fluid.resolution, CONFIG);
     audio = new Audio(CONFIG);
     sunDrop = new SunDrop(CONFIG.sun, width);
+    
+    // Initialize shared renderers (reused by all particles)
+    stampRenderer = new StampRenderer(CONFIG.drops.stamp || {});
+    splatterRenderer = new SplatterRenderer(CONFIG.drops.splatter || {});
     
     bgLayer = createGraphics(width, height);
     trailLayer = createGraphics(width, height);
@@ -30,7 +42,7 @@ function setup() {
     initializeBackgroundLayer();
     setupEventListeners();
     
-    console.log('Setup complete - EphemeralTime v0.2');
+    console.log('Setup complete - EphemeralTime v0.2 (Refactored Architecture)');
 }
 
 function setupEventListeners() {
@@ -92,7 +104,15 @@ function createSecondDrop(data) {
     const dropColor = colorManager.getColorForTime(data.minute, data.hour);
     const x = random(width * 0.2, width * 0.8);
     const y = random(height * 0.2, height * 0.8);
-    const drop = new InkDrop(x, y, dropColor, 'second', CONFIG);
+    
+    // Dependency Injection: pass required dependencies
+    const drop = new InkDrop(x, y, dropColor, 'second', {
+        config: CONFIG,
+        stampRenderer: stampRenderer,
+        splatterRenderer: splatterRenderer,
+        fluid: fluid
+    });
+    
     activeDrops.push(drop);
     audio.playDropSound(x, data.minute);
 }
@@ -101,7 +121,15 @@ function createMinuteDrop(data) {
     const dropColor = colorManager.getColorForTime(data.minute, data.hour);
     const x = random(width * 0.1, width * 0.9);
     const y = random(height * 0.1, height * 0.9);
-    const drop = new InkDrop(x, y, dropColor, 'minute', CONFIG);
+    
+    // Dependency Injection: pass required dependencies
+    const drop = new InkDrop(x, y, dropColor, 'minute', {
+        config: CONFIG,
+        stampRenderer: stampRenderer,
+        splatterRenderer: splatterRenderer,
+        fluid: fluid
+    });
+    
     activeDrops.push(drop);
     audio.playDropSound(x, data.minute);
 }
@@ -110,7 +138,15 @@ function createHourDrop(data) {
     const dropColor = colorManager.getColorForTime(0, data.hour);
     const x = width / 2;
     const y = height / 2;
-    const drop = new InkDrop(x, y, dropColor, 'hour', CONFIG);
+    
+    // Dependency Injection: pass required dependencies
+    const drop = new InkDrop(x, y, dropColor, 'hour', {
+        config: CONFIG,
+        stampRenderer: stampRenderer,
+        splatterRenderer: splatterRenderer,
+        fluid: fluid
+    });
+    
     activeDrops.push(drop);
     audio.playDropSound(x, 0);
 }
@@ -126,7 +162,15 @@ function createChimeDrop(data) {
         const angle = (TWO_PI / rippleCount) * i;
         const x = centerX + cos(angle) * rippleRadius;
         const y = centerY + sin(angle) * rippleRadius;
-        const drop = new InkDrop(x, y, dropColor, 'chime', CONFIG);
+        
+        // Dependency Injection: pass required dependencies
+        const drop = new InkDrop(x, y, dropColor, 'chime', {
+            config: CONFIG,
+            stampRenderer: stampRenderer,
+            splatterRenderer: splatterRenderer,
+            fluid: fluid
+        });
+        
         activeDrops.push(drop);
     }
     audio.playDropSound(centerX, data.minute);

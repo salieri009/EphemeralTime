@@ -2,18 +2,31 @@
  * InkDrip.js - Dripping ink trails from larger drops
  * Simulates ink bleeding/running along fluid flow + gravity
  * Inspired by water flowing down paper
+ * 
+ * NOTE: This class will be refactored to extend Particle in future update
+ * For now, supports both legacy and dependency injection constructor patterns
  */
 class InkDrip {
-    constructor(x, y, color, parentSize, config = CONFIG) {
+    constructor(x, y, color, parentSize, configOrDependencies = CONFIG) {
         this.pos = createVector(x, y);
         this.vel = createVector(0, 0);
         this.acc = createVector(0, 0);
         
         this.color = color;
-        this.config = config;
+        
+        // Support both old (config) and new (dependencies object) patterns
+        if (configOrDependencies.config) {
+            // New pattern: dependencies object
+            this.config = configOrDependencies.config;
+            this.fluid = configOrDependencies.fluid;
+        } else {
+            // Legacy pattern: direct config
+            this.config = configOrDependencies;
+            this.fluid = null;
+        }
         
         // Drip characteristics based on parent drop size
-        const dripConfig = config.drops.drip || {
+        const dripConfig = this.config.drops.drip || {
             enabled: true,
             sizeRatio: 0.15,
             maxSpeed: 2,

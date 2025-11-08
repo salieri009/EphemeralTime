@@ -119,9 +119,17 @@ const CONFIG = {
     // ========================================
     fluid: {
         resolution: 25,                      // grid cell size (px)
-        noiseScale: 0.08,                    // Perlin noise detail
-        noiseSpeed: 0.003,                   // animation speed
+        noiseScale: 0.15,                    // Perlin noise detail (increased for more variation)
+        noiseSpeed: 0.005,                   // animation speed (faster change)
         baseFlowMagnitude: 0.15,             // base current strength (very subtle drift)
+        
+        // Individual drop variation (for autonomous movement)
+        dropVariation: {
+            enabled: true,
+            noiseOffsetRange: 1000,          // each drop gets unique noise offset
+            randomJitter: 0.02,              // random velocity jitter per frame
+            independentScale: 0.3            // how much each drop resists group movement
+        },
         
         // Turbulence system (attention reservoir)
         turbulence: {

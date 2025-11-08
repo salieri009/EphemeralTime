@@ -112,18 +112,21 @@ class Fluid {
     }
 
     /**
-     * Update viscosity based on ink density
-     * @param {number} inkDensity - Current ink density (0-1)
+     * Update viscosity based on turbulence
+     * PHILOSOPHY: Distraction doesn't speed up time, but creates more traces
+     * Higher turbulence → lower viscosity → ink spreads faster → more trails
+     * 
+     * @param {number} turbulence - Current turbulence level (0-1)
      */
-    updateViscosity(inkDensity) {
-        const minViscosity = this.config.fluid.viscosity.maxValue;
-        const maxViscosity = this.config.fluid.viscosity.baseValue;
+    updateViscosity(turbulence) {
+        const viscConfig = this.config.fluid.viscosity;
         
-        // Map ink density to viscosity (more ink = more friction)
-        this.currentViscosity = map(
-            inkDensity,
-            0, 1,
-            maxViscosity, minViscosity
+        // Calm (turbulence=0): high viscosity (0.95) - ink moves slowly, leaves clear marks
+        // Distracted (turbulence=1): low viscosity (0.65) - ink spreads fast, many trails
+        this.currentViscosity = lerp(
+            viscConfig.baseValue,      // 0.95 - calm, mindful state
+            viscConfig.minValue || 0.65, // 0.65 - chaotic, distracted state
+            constrain(turbulence, 0, 1)
         );
     }
 

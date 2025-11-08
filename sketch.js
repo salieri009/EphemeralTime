@@ -154,8 +154,12 @@ class Application {
         
         if (!this.isPaused) {
             this.turbulenceLevel = fluid.getTurbulence();
+            
+            // PHILOSOPHY: Turbulence modulates all systems
+            // Distraction doesn't speed time, but creates more traces
             colorManager.update(this.turbulenceLevel);
             audio.updateTurbulence(this.turbulenceLevel);
+            fluid.updateViscosity(this.turbulenceLevel); // ✨ NEW: viscosity responds to attention
             fluid.update();
             this.sunDrop.update(minute());
         }
@@ -228,6 +232,7 @@ class Application {
         try {
             const colorManager = this.container.get('colorManager');
             const audio = this.container.get('audio');
+            const fluid = this.container.get('fluid');
             
             const dropColor = colorManager.getColorForTime(data.minute, data.hour);
             const centerX = width / 2 + random(-100, 100);
@@ -235,6 +240,10 @@ class Application {
             const rippleCount = CONFIG.chime.ripple.count;
             const rippleRadius = CONFIG.chime.ripple.radius;
             
+            // PHILOSOPHY: Strong chime = temporal signpost
+            // Creates both visual pattern AND fluid disturbance
+            
+            // 1. Create visual pattern (circle of drops)
             for (let i = 0; i < rippleCount; i++) {
                 const angle = (TWO_PI / rippleCount) * i;
                 const x = centerX + cos(angle) * rippleRadius;
@@ -242,7 +251,18 @@ class Application {
                 const drop = factory.createChimeDrop(x, y, dropColor);
                 this.activeDrops.push(drop);
             }
+            
+            // 2. Create STRONG fluid ripple (1/3 screen size)
+            const rippleStrength = CONFIG.chime.ripple.strength || 5;
+            const rippleSize = min(width, height) / 3; // 1/3 of screen
+            if (fluid.applyRipple) {
+                fluid.applyRipple(centerX, centerY, rippleSize, rippleStrength);
+            }
+            
+            // 3. Strong audio feedback (bell-like)
             audio.playDropSound(centerX, data.minute);
+            console.log(`🔔 CHIME at ${data.minute} minutes - Pattern created`);
+            
         } catch (error) {
             console.error('Failed to create chime drop:', error);
         }
@@ -297,7 +317,19 @@ class Application {
     }
 
     _fadeTrailLayer() {
-        this.layers.trail.fill(255, CONFIG.trail.fadeAlpha);
+        // PHILOSOPHY: Busier time = more traces = slower fade
+        // When turbulent, traces accumulate longer (more records of activity)
+        
+        const baseFadeAlpha = CONFIG.trail.fadeAlpha || 8;
+        
+        // High turbulence (busy) → lower fade alpha → traces persist longer
+        const fadeAlpha = lerp(
+            baseFadeAlpha,           // calm: 8 (fades normally)
+            baseFadeAlpha * 0.3,     // distracted: 2.4 (fades slowly, accumulates)
+            this.turbulenceLevel
+        );
+        
+        this.layers.trail.fill(255, fadeAlpha);
         this.layers.trail.noStroke();
         this.layers.trail.rect(0, 0, width, height);
     }

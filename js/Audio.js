@@ -15,6 +15,7 @@ class Audio {
         // Ambient sound
         this.ambient = null;
         this.ambientFilter = null;
+        this.turbulenceOsc = null; // ✨ NEW: Additional layer for high turbulence
         
         // Pause state
         this.isPaused = false;
@@ -132,20 +133,48 @@ class Audio {
 
     /**
      * Update the audio system with current turbulence level.
+     * PHILOSOPHY: Audio is the PRIMARY feedback for attention state
+     * Visual shows "records" (traces), Audio shows "experience" (now)
+     * 
      * @param {number} turbulence - Current turbulence level (0-1).
      */
     updateTurbulence(turbulence) {
         this.currentTurbulence = turbulence;
         
-        // Modulate ambient filter based on turbulence
-        if (this.ambientFilter && this.soundsReady) {
-            // Higher turbulence = higher filter frequency (more chaotic sound)
+        if (!this.soundsReady) return;
+        
+        // 1. Ambient filter modulation (calm → chaotic)
+        if (this.ambientFilter) {
+            // Calm: 200Hz lowpass (meditative, deep)
+            // Distracted: 2000Hz (sharp, nervous)
             const filterFreq = map(turbulence, 0, 1, 200, 2000);
             this.ambientFilter.freq(filterFreq);
             
-            // Also increase resonance for a more "sharp" sound when turbulent
-            const resonance = map(turbulence, 0, 1, 1, 10);
+            // Resonance creates "edge" in distracted state
+            const resonance = map(turbulence, 0, 1, 1, 15);
             this.ambientFilter.res(resonance);
+        }
+        
+        // 2. Ambient volume increases with turbulence (more action = louder feedback)
+        if (this.ambient) {
+            const baseVol = this.config.audio.ambient.baseVolume;
+            const turbulentVol = baseVol * (1 + turbulence * 2); // up to 3x louder
+            this.ambient.amp(turbulentVol, 0.1); // 0.1s smooth transition
+        }
+        
+        // 3. Add second oscillator layer when highly distracted
+        if (turbulence > 0.5 && !this.turbulenceOsc && this.config.audio.ambient.enabled) {
+            this.turbulenceOsc = new p5.Oscillator('triangle');
+            this.turbulenceOsc.freq(440 + turbulence * 200); // rising pitch
+            this.turbulenceOsc.amp((turbulence - 0.5) * 0.15); // fade in
+            this.turbulenceOsc.start();
+        } else if (turbulence <= 0.5 && this.turbulenceOsc) {
+            this.turbulenceOsc.stop();
+            this.turbulenceOsc = null;
+        } else if (this.turbulenceOsc) {
+            // Update existing turbulence layer
+            this.turbulenceOsc.freq(440 + turbulence * 200);
+            this.turbulenceOsc.amp((turbulence - 0.5) * 0.15);
         }
     }
 

@@ -138,13 +138,14 @@ class InkDrop extends Particle {
 
     /**
      * Override: Custom physics for ink drops
-     * Applies fluid force + additional forces (e.g., sun repulsion)
+     * Applies fluid force + sun repulsion
+     * PHILOSOPHY: Sun = "objective time" that repels "subjective experiences"
      */
     updatePhysics() {
         // Reset acceleration
         this.acc.set(0, 0);
 
-        // Get fluid vector using individual noise offsets (autonomous movement)
+        // 1. Fluid influence (subjective flow)
         if (this.fluid && typeof this.fluid.getVectorAtWithOffset === 'function') {
             const fluidVector = this.fluid.getVectorAtWithOffset(
                 this.pos.x,
@@ -158,8 +159,14 @@ class InkDrop extends Particle {
             }
         }
 
-        // Additional forces can be added here
-        // (e.g., sun repulsion - could be injected as force provider)
+        // 2. Sun repulsion (objective time's sacred space)
+        if (this.fluid && this.fluid.sunDrop) {
+            const sunForce = this.fluid.sunDrop.getRepulsionForce(
+                this.pos.x, 
+                this.pos.y
+            );
+            this.acc.add(sunForce); // Strong repulsion
+        }
 
         // Standard physics
         this.vel.add(this.acc);
@@ -204,13 +211,15 @@ class InkDrop extends Particle {
 
     /**
      * Render motion trail to trail layer
+     * PHILOSOPHY: More turbulence = more visible traces (busier life leaves more marks)
      */
     stampTrail(trailLayer, turbulenceLevel = 0) {
         const trailConfig = this.config.drops.trail;
         if (!trailConfig || !trailConfig.enabled) return;
 
-        // Calculate trail alpha based on turbulence
-        const turbulenceFactor = 1 - (turbulenceLevel * trailConfig.turbulenceEffect);
+        // INVERTED LOGIC: High turbulence = MORE trails (not less)
+        // Distraction creates more activity = more visible traces
+        const turbulenceFactor = 1 + (turbulenceLevel * 0.5); // up to 1.5x alpha
         const trailAlpha = trailConfig.baseAlpha * turbulenceFactor;
 
         // Use renderer

@@ -175,8 +175,12 @@ class Audio {
             
             // As ink accumulates (density increases), filter frequency decreases
             // This creates a darker, more muffled sound
-            const targetFreq = map(inkDensity, 0, 1, maxFreq, minFreq);
-            this.ambientFilter.freq(targetFreq, 0.5); // smooth transition
+            const targetFreq = constrain(map(inkDensity, 0, 1, maxFreq, minFreq), minFreq, maxFreq);
+            
+            // Ensure targetFreq is a valid finite number
+            if (isFinite(targetFreq) && targetFreq > 0) {
+                this.ambientFilter.freq(targetFreq, 0.5); // smooth transition
+            }
             
         } catch (error) {
             console.log('Error updating ambient filter:', error);

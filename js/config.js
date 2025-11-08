@@ -13,7 +13,7 @@ const CONFIG = {
     drops: {
         // Second drop (base size)
         second: {
-            baseSize: 15,                    // diameter in pixels
+            baseSize: 8,                     // diameter in pixels (reduced from 15)
             lifespan: 300,                   // frames (5 sec @ 60fps)
             opacity: 200,                    // initial alpha
             fadeMode: 'stain'                // 'stain' = leaves trace, 'fade' = complete disappear
@@ -34,32 +34,66 @@ const CONFIG = {
             opacity: 240,
             fadeMode: 'stain',
             clearHistory: true               // reset canvas on new hour
+        },
+        
+        // Organic splatter effect (inspired by kwertyops painting code)
+        splatter: {
+            enabled: true,                   // enable splash effect
+            particleCount: 25,               // increased for more organic feel
+            radius: 2.5,                     // splatter radius multiplier
+            alphaMultiplier: 0.5,            // particle transparency
+            velocityInfluence: 0.8,          // how much drop velocity affects splatter direction
+            sizeVariation: 0.7               // size randomness (0-1)
+        },
+        
+        // Dripping effect (only for minute/hour drops)
+        drip: {
+            enabled: true,                   // enable dripping effect
+            interval: 15,                    // frames between drip generation
+            sizeRatio: 0.15,                 // drip size relative to parent drop
+            maxSpeed: 2,                     // max drip velocity
+            fadeRate: 0.03,                  // how fast drip shrinks
+            gravityStrength: 0.15,           // downward pull
+            fluidInfluence: 0.8,             // how much drip follows fluid (0-1)
+            wobble: 0.3                      // horizontal randomness
         }
     },
 
     // ========================================
-    // COLOR SYSTEM (60-step minute gradient)
+    // COLOR SYSTEM (Realistic Fountain Pen Ink)
     // ========================================
     colors: {
-        // 60-step gradient: Blue (0min) → Green → Yellow → Orange → Red (59min)
+        // 60-step gradient: Cool Morning → Warm Evening
+        // Based on real fountain pen ink chemistry
         minuteGradient: {
             enabled: true,
             steps: 60,
             // Color stops: [minute, [R, G, B]]
+            // Real ink reference: Diamine, Pilot Iroshizuku, Sailor
             keyColors: [
-                [0, [30, 120, 200]],         // 0min: deep blue
-                [15, [50, 180, 150]],        // 15min: cyan-green
-                [30, [200, 180, 50]],        // 30min: yellow
-                [45, [220, 140, 50]],        // 45min: orange
-                [59, [200, 50, 50]]          // 59min: red
+                [0, [45, 70, 95]],           // 0min: Prussian Blue (cold, morning)
+                [10, [50, 85, 110]],         // 10min: Steel Blue
+                [20, [60, 95, 105]],         // 20min: Petrol Blue-Grey
+                [30, [75, 100, 90]],         // 30min: Slate (neutral midday)
+                [40, [95, 85, 70]],          // 40min: Warm Grey
+                [50, [115, 75, 60]],         // 50min: Terracotta
+                [59, [125, 65, 55]]          // 59min: Burnt Sienna (warm, evening)
             ]
+            // Total shift: Cool blue → Neutral grey → Warm brown
+            // Subtle but readable over 60 minutes
         },
         
-        // Hour-based darkness variation (subtle)
+        // Hour-based darkness variation (day/night cycle)
         hourVariation: {
             enabled: true,
-            darknessByHour: true,            // darker in night hours
-            brightnessRange: [0.9, 1.1]     // multiplier on color brightness
+            darknessByHour: true,
+            brightnessRange: [0.85, 1.0]     // slightly darker overall (ink absorption)
+        },
+        
+        // Turbulence desaturation (Pillar 3: distracted mind)
+        turbulence: {
+            desaturationAmount: 0.6,         // how much color fades when turbulent (0-1)
+            muddyShift: 15                   // shift toward muddy brown when turbulent
         }
     },
 
@@ -72,11 +106,11 @@ const CONFIG = {
         stampOpacityThreshold: 50,           // stamp when opacity falls below this
         stampAgeThreshold: 400,              // or when age exceeds this many frames
         
-        // Staining effect (coffee-like residue)
+        // Staining effect (realistic ink absorption into paper)
         stainFade: {
             enabled: true,
-            residueOpacity: 80,              // opacity of stamped residue (0-255)
-            residueColor: [120, 100, 80]     // warm brownish tint for residue
+            residueOpacity: 60,              // lower = more transparent (like dried ink)
+            residueColor: null               // null = use original ink color (not brown)
         }
     },
 
@@ -87,7 +121,7 @@ const CONFIG = {
         resolution: 25,                      // grid cell size (px)
         noiseScale: 0.08,                    // Perlin noise detail
         noiseSpeed: 0.003,                   // animation speed
-        baseFlowMagnitude: 1.5,              // base current strength
+        baseFlowMagnitude: 0.15,             // base current strength (very subtle drift)
         
         // Turbulence system (attention reservoir)
         turbulence: {
@@ -127,6 +161,7 @@ const CONFIG = {
                 type: 'sine',
                 baseFreq: 900,
                 freqRange: [600, 1400],      // wider range
+                panRange: [-1, 1],           // stereo panning range
                 attack: 0.008,
                 decay: 0.25,
                 sustain: 0,
@@ -146,6 +181,18 @@ const CONFIG = {
                 resonance: 3
             }
         }
+    },
+
+    // ========================================
+    // TRAIL SYSTEM (Motion trail & smudge effect)
+    // ========================================
+    trail: {
+        enabled: true,                       // enable motion trails
+        fadeAlpha: 3,                        // trail fade speed (lower = longer trails, 1-10 range)
+        baseAlpha: 25,                       // base trail opacity (calm state)
+        sizeMultiplier: 0.8,                 // trail size relative to drop size
+        turbulenceEffect: 0.7                // how much turbulence reduces trail (0-1)
+        // Concept: Calm mind = clear trails, Turbulent mind = faint trails
     },
 
     // ========================================
@@ -179,40 +226,8 @@ const CONFIG = {
         pixelDensity: 1                      // 1 = standard, 2 = retina
     },
 
-    // ========================================
-    // AUDIO SYSTEM (Generative Synthesis)
-    // ========================================
-    audio: {
-        enabled: true,                       // master audio switch
-
-        // Drop sound (synthesized oscillator)
-        dropSound: {
-            useGenerative: true,             // use synthesized sound vs. samples
-            volume: 0.1,                     // master volume (0-1)
-
-            oscillator: {
-                type: 'sine',                // 'sine', 'triangle', 'sawtooth', 'square'
-                attack: 0.01,                // envelope attack time
-                decay: 0.1,                  // envelope decay time
-                sustain: 0.2,                // envelope sustain level
-                release: 0.3,                // envelope release time
-                freqRange: [200, 800],       // frequency range for minute variation
-                panRange: [-0.5, 0.5]        // stereo panning range (-1 to 1)
-            }
-        },
-
-        // Ambient background sound
-        ambient: {
-            enabled: true,                   // enable ambient sound
-            useNoise: true,                  // pink noise vs. oscillator
-            baseVolume: 0.05,                // base volume (0-1)
-
-            filter: {
-                baseFreq: 1000,              // lowpass filter base frequency
-                resonance: 5,                // filter resonance
-                freqRange: [200, 2000]       // frequency range for density mapping
-            }
-        }
+    rendering: {
+        maxDropRadius: 540                   // hour drop: 15 * 36 = 540
     },
 
     // ========================================
@@ -227,7 +242,7 @@ const CONFIG = {
         pulseSpeed: 0.05,
         pulseMagnitude: 0.2,
         repulsionRadius: 150,
-        repulsionStrength: 2
+        repulsionStrength: 0.8               // reduced from 2 for gentler repulsion
     },
 
     // ========================================
@@ -242,27 +257,14 @@ const CONFIG = {
     },
 
     // ========================================
-    // COLOR & APPEARANCE
+    // TURBULENCE SYSTEM (Pillar 3)
     // ========================================
-    color: {
-        // Global color settings
-        background: [255, 255, 255],        // white
-        grid: [240, 240, 240],              // light gray grid
-        text: [50, 50, 50],                 // dark gray text
-        link: [0, 120, 255],                // blue links
-
-        // Drop colors (based on type)
-        drop: {
-            second: [30, 120, 200],          // deep blue
-            minute: [50, 180, 150],         // cyan-green
-            hour: [200, 50, 50]             // red
-        },
-
-        // Sun drop (hour marker)
-        sun: {
-            core: [255, 255, 0],             // bright yellow core
-            corona: [255, 204, 0]            // softer yellow corona
-        }
+    turbulence: {
+        enabled: true,
+        decay: 0.98,                         // gradual calming
+        velocityThreshold: 5,                // mouse speed to trigger
+        maxValue: 1.0,
+        colorDesaturation: 0.7               // max desaturation multiplier
     },
 
     // ========================================
@@ -272,6 +274,14 @@ const CONFIG = {
         showFPS: true,
         showGrid: true,
         showDropInfo: true
+    },
+
+    // ========================================
+    // TIME CONTROL (for testing/presentation)
+    // ========================================
+    time: {
+        speedMultiplier: 1,                  // 1 = real-time, 60 = 1 minute per second
+        useRealTime: true                    // false = use simulated accelerated time
     }
 };
 

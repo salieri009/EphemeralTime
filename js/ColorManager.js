@@ -1,34 +1,35 @@
 /**
- * ColorManager.js - Handles color generation for time-based ink drops
- * 60-step color gradient based on minutes (0-59)
- * Blue (0min) → Cyan-Green (15min) → Yellow (30min) → Orange (45min) → Red (59min)
+ * ColorManager.js - Realistic Fountain Pen Ink Color System
+ * 
+ * Design Philosophy:
+ * - Realistic fountain pen ink chemistry (Diamine, Pilot, Sailor)
+ * - Subtle cool→warm gradient for time readability
+ * - Paper absorption simulation (desaturation + darkening)
+ * - Turbulence creates "muddy" mixed ink effect
  */
 class ColorManager {
     constructor(config = CONFIG) {
         this.config = config;
         this.colorGradient = [];
-        this.currentTurbulence = 0; // Track turbulence for color adjustments
+        this.currentTurbulence = 0;
         this.buildGradient();
     }
 
     /**
-     * Build 60-step color gradient by interpolating between key colors
+     * Build 60-step realistic ink gradient
+     * Smooth interpolation between fountain pen ink colors
      */
     buildGradient() {
         const keyColors = this.config.colors.minuteGradient.keyColors;
         const steps = this.config.colors.minuteGradient.steps;
         
-        // Create color objects at key points
         const keyColorObjects = keyColors.map(([minute, rgb]) => ({
             minute,
             color: color(rgb[0], rgb[1], rgb[2])
         }));
 
-        // Interpolate between key colors for all 60 minutes
+        // Interpolate with subtle easing for natural ink flow
         for (let i = 0; i < steps; i++) {
-            let interpColor;
-
-            // Find the two key colors this minute falls between
             let lowerKey = keyColorObjects[0];
             let upperKey = keyColorObjects[keyColorObjects.length - 1];
 
@@ -40,102 +41,145 @@ class ColorManager {
                 }
             }
 
-            // Interpolate between lower and upper key
+            // Smooth interpolation with slight ease-in-out
             const range = upperKey.minute - lowerKey.minute;
-            const progress = (i - lowerKey.minute) / range;
-            interpColor = lerpColor(lowerKey.color, upperKey.color, progress);
-
+            let progress = (i - lowerKey.minute) / range;
+            progress = this.easeInOutQuad(progress); // subtle easing
+            
+            const interpColor = lerpColor(lowerKey.color, upperKey.color, progress);
             this.colorGradient[i] = interpColor;
         }
     }
 
     /**
-     * Update the color manager with current turbulence level.
-     * @param {number} turbulence - Current turbulence level (0-1).
+     * Subtle easing function for natural color transitions
      */
-    update(turbulence = 0) {
-        this.currentTurbulence = turbulence;
+    easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     }
 
     /**
-     * Get color for a given minute (0-59)
+     * Update with current turbulence level
+     * @param {number} turbulence - Current turbulence (0-1)
+     */
+    update(turbulence = 0) {
+        this.currentTurbulence = constrain(turbulence, 0, 1);
+    }
+
+    /**
+     * Get realistic ink color for given time
+     * Applies paper absorption and turbulence effects
+     * 
      * @param {number} minute - minute of the hour (0-59)
-     * @param {number} hour - hour of the day (0-23) for optional variation
-     * @returns {p5.Color} the color for this time
+     * @param {number} hour - hour of the day (0-23)
+     * @returns {p5.Color} realistic ink color
      */
     getColorForTime(minute, hour) {
         minute = constrain(minute, 0, 59);
         let c = this.colorGradient[minute];
 
-        // Apply turbulence-based desaturation
+        let r = red(c);
+        let g = green(c);
+        let b = blue(c);
+
+        // Effect 1: Turbulence creates "muddy" mixed ink
         if (this.currentTurbulence > 0) {
-            // Desaturate color based on turbulence
-            const desaturationFactor = map(this.currentTurbulence, 0, 1, 1, 0.5);
-            const gray = (red(c) + green(c) + blue(c)) / 3;
-            const r = lerp(gray, red(c), desaturationFactor);
-            const g = lerp(gray, green(c), desaturationFactor);
-            const b = lerp(gray, blue(c), desaturationFactor);
-            c = color(r, g, b);
+            const turbConfig = this.config.colors.turbulence;
+            
+            // Desaturate (lose color intensity)
+            const desatAmount = this.currentTurbulence * turbConfig.desaturationAmount;
+            const gray = (r + g + b) / 3;
+            r = lerp(r, gray, desatAmount);
+            g = lerp(g, gray, desatAmount);
+            b = lerp(b, gray, desatAmount);
+            
+            // Shift toward muddy brown (mixed fountain pen inks)
+            const muddyShift = this.currentTurbulence * turbConfig.muddyShift;
+            r += muddyShift * 0.3;
+            g += muddyShift * 0.2;
+            b += muddyShift * 0.1;
         }
 
-        // Apply subtle hour-based brightness variation
+        // Effect 2: Paper absorption (slight darkening)
         if (this.config.colors.hourVariation.enabled) {
-            const hourProgress = hour / 24;
-            const brightMult = map(hourProgress, 0, 1, this.config.colors.hourVariation.brightnessRange[0], this.config.colors.hourVariation.brightnessRange[1]);
-            
-            let r = red(c) * brightMult;
-            let g = green(c) * brightMult;
-            let b = blue(c) * brightMult;
-            
-            c = color(r, g, b);
+            const brightness = this.config.colors.hourVariation.brightnessRange[0];
+            r *= brightness;
+            g *= brightness;
+            b *= brightness;
         }
 
-        // Add tiny random jitter (natural ink variation)
-        let r = constrain(red(c) + random(-5, 5), 0, 255);
-        let g = constrain(green(c) + random(-5, 5), 0, 255);
-        let b = constrain(blue(c) + random(-5, 5), 0, 255);
+        // Effect 3: Natural ink variation (pigment inconsistency)
+        r = constrain(r + random(-3, 3), 0, 255);
+        g = constrain(g + random(-3, 3), 0, 255);
+        b = constrain(b + random(-3, 3), 0, 255);
 
         return color(r, g, b);
     }
 
     /**
-     * Update color manager with turbulence level (PILLAR 3)
-     * High turbulence desaturates colors
-     * @param {number} turbulence - Turbulence level (0-1)
+     * Get residue color for stamped stains
+     * Real ink: color persists but becomes more transparent
+     * 
+     * @param {p5.Color} originalColor - original ink color
+     * @returns {p5.Color} dried/absorbed ink color
      */
-    update(turbulence) {
-        this.currentTurbulence = constrain(turbulence, 0, 1);
+    getResidueColor(originalColor) {
+        // If config specifies a residue color, use it
+        if (this.config.performance.stainFade.residueColor) {
+            const rc = this.config.performance.stainFade.residueColor;
+            return color(rc[0], rc[1], rc[2]);
+        }
+        
+        // Otherwise: preserve original hue but darken + desaturate (realistic dried ink)
+        let r = red(originalColor);
+        let g = green(originalColor);
+        let b = blue(originalColor);
+        
+        // Darken by 30% (paper absorption)
+        r *= 0.7;
+        g *= 0.7;
+        b *= 0.7;
+        
+        // Slight desaturation (pigment oxidation)
+        const gray = (r + g + b) / 3;
+        r = lerp(r, gray, 0.2);
+        g = lerp(g, gray, 0.2);
+        b = lerp(b, gray, 0.2);
+        
+        return color(r, g, b);
     }
 
     /**
-     * Get color by drop type (for potential future tweaking)
-     * @param {number} minute
-     * @param {number} hour
-     * @param {string} dropType - 'second', 'minute', or 'hour'
-     * @returns {p5.Color}
+     * Get color by drop type with size-based adjustments
+     * Larger drops = more pigment = slightly darker
      */
     getColorByType(minute, hour, dropType = 'second') {
         let baseColor = this.getColorForTime(minute, hour);
 
-        // Apply turbulence-based desaturation
-        if (this.currentTurbulence > 0) {
-            const c = color(baseColor);
-            const h = hue(c);
-            const s = saturation(c) * (1 - this.currentTurbulence * 0.7);
-            const b = brightness(c);
-            colorMode(HSB);
-            baseColor = color(h, s, b);
-            colorMode(RGB);
-        }
-
-        // Could apply type-specific adjustments here
-        // e.g., hour drops could be slightly darker/more saturated
+        // Larger drops carry more pigment
         switch (dropType) {
             case 'minute':
-                // Optionally make minute drops slightly more saturated
+                // Slightly more saturated (more ink volume)
+                let r1 = red(baseColor) * 1.05;
+                let g1 = green(baseColor) * 1.05;
+                let b1 = blue(baseColor) * 1.05;
+                baseColor = color(
+                    constrain(r1, 0, 255),
+                    constrain(g1, 0, 255),
+                    constrain(b1, 0, 255)
+                );
                 break;
+                
             case 'hour':
-                // Optionally make hour drops darker
+                // Noticeably darker (heavy ink drop)
+                let r2 = red(baseColor) * 1.15;
+                let g2 = green(baseColor) * 1.15;
+                let b2 = blue(baseColor) * 1.15;
+                baseColor = color(
+                    constrain(r2, 0, 255),
+                    constrain(g2, 0, 255),
+                    constrain(b2, 0, 255)
+                );
                 break;
         }
 

@@ -4,8 +4,9 @@
  */
 
 let clock, colorManager, fluid, audio, sunDrop;
-let bgLayer, historyLayer, activeLayer;
+let bgLayer, trailLayer, historyLayer, activeLayer;
 let activeDrops = [];
+let activeDrips = []; // dripping ink trails
 let isPaused = false;
 let turbulenceLevel = 0;
 
@@ -19,8 +20,12 @@ function setup() {
     sunDrop = new SunDrop(CONFIG.sun, width);
     
     bgLayer = createGraphics(width, height);
+    trailLayer = createGraphics(width, height);
     historyLayer = createGraphics(width, height);
     activeLayer = createGraphics(width, height);
+    
+    // Initialize trail layer with transparency
+    trailLayer.clear();
     
     initializeBackgroundLayer();
     setupEventListeners();
@@ -39,8 +44,15 @@ function setupEventListeners() {
     
     clock.on('hour', (data) => {
         if (!isPaused) {
-            resetCanvasForNewHour();
             createHourDrop(data);
+        }
+    });
+    
+    clock.on('hourComplete', (data) => {
+        // 1 hour completed: reset canvas for new hour
+        if (!isPaused) {
+            console.log(`Hour ${data.completedHour} complete. Resetting canvas for hour ${data.newHour}.`);
+            resetCanvasForNewHour();
         }
     });
     
@@ -60,6 +72,12 @@ function draw() {
         fluid.update();
         sunDrop.update(minute());
     }
+    
+    // Fade trail layer gradually (creates ghosting effect)
+    fadeTrailLayer();
+    
+    // Sun trail
+    sunDrop.stampTrail(trailLayer, turbulenceLevel);
     
     updateAndRenderDrops();
     sunDrop.render(activeLayer);
@@ -119,12 +137,21 @@ function updateAndRenderDrops() {
     const inkDensity = calculateInkDensity();
     const viscosity = getViscosityFromDensity(inkDensity);
     
+    // Update and render main drops
     for (let i = activeDrops.length - 1; i >= 0; i--) {
         const drop = activeDrops[i];
         const fluidVector = fluid.getVectorAt(drop.pos.x, drop.pos.y);
         const sunRepulsion = sunDrop.getRepulsionForce(drop.pos.x, drop.pos.y);
-        fluidVector.add(sunRepulsion);
-        drop.update(fluidVector, viscosity);
+        
+        // Leave motion trail
+        drop.stampTrail(trailLayer, turbulenceLevel);
+        
+        // Update drop and collect new drips
+        const newDrip = drop.update(fluidVector, viscosity, sunRepulsion);
+        if (newDrip) {
+            activeDrips.push(newDrip); // add to drip array
+        }
+        
         drop.display(activeLayer);
         
         if (drop.shouldStamp() && !drop.hasBeenStamped) {
@@ -134,6 +161,27 @@ function updateAndRenderDrops() {
         if (drop.isDead()) {
             if (!drop.hasBeenStamped) drop.stampToHistory(historyLayer);
             activeDrops.splice(i, 1);
+        }
+    }
+    
+    // Update and render drips
+    for (let i = activeDrips.length - 1; i >= 0; i--) {
+        const drip = activeDrips[i];
+        const fluidVector = fluid.getVectorAt(drip.pos.x, drip.pos.y);
+        
+        // Leave drip trail
+        drip.stampTrail(trailLayer, turbulenceLevel);
+        
+        drip.update(fluidVector);
+        drip.display(activeLayer);
+        
+        // Stamp drip trail to history periodically
+        if (drip.shouldStamp()) {
+            drip.stampToHistory(historyLayer);
+        }
+        
+        if (drip.isDead) {
+            activeDrips.splice(i, 1);
         }
     }
     
@@ -148,18 +196,24 @@ function updateAndRenderDrops() {
 }
 
 function mouseMoved() {
-    if (CONFIG.interaction.fluidDrag.enabled) {
+    if (fluid && CONFIG.interaction?.fluidDrag?.enabled) {
         const mouseVel = createVector(mouseX - pmouseX, mouseY - pmouseY);
-        fluid.addForceAtPoint(mouseX, mouseY, mouseVel, CONFIG.fluid.mouseForce.strength);
+        if (typeof fluid.addForceAtPoint === 'function') {
+            fluid.addForceAtPoint(mouseX, mouseY, mouseVel, CONFIG.fluid.mouseForce.strength);
+        }
     }
     return false;
 }
 
 function mouseDragged() {
     const speed = dist(mouseX, mouseY, pmouseX, pmouseY);
-    if (speed > CONFIG.turbulence.threshold) {
-        const intensity = constrain(map(speed, CONFIG.turbulence.threshold, 50, 0, 1), 0, 1);
-        fluid.addTurbulence(intensity);
+    const threshold = CONFIG.turbulence?.velocityThreshold || CONFIG.fluid?.turbulence?.velocityThreshold || 5;
+    
+    if (fluid && speed > threshold) {
+        const intensity = constrain(map(speed, threshold, 50, 0, 1), 0, 1);
+        if (typeof fluid.addTurbulence === 'function') {
+            fluid.addTurbulence(intensity);
+        }
     }
     mouseMoved();
     return false;
@@ -170,15 +224,41 @@ function initializeBackgroundLayer() {
 }
 
 function resetCanvasForNewHour() {
+    console.log('🔄 Resetting canvas for new hour...');
+    
+    // Clear all layers
     historyLayer.clear();
     historyLayer.background(255);
+    
+    trailLayer.clear();
+    
+    // Clear all active elements
     activeDrops = [];
+    activeDrips = [];
+    
+    // Reset fluid turbulence
+    if (fluid && typeof fluid.resetTurbulence === 'function') {
+        fluid.resetTurbulence();
+    }
+    
+    console.log('✅ Canvas reset complete');
 }
 
 function renderLayers() {
     image(bgLayer, 0, 0);
+    image(trailLayer, 0, 0);
     image(historyLayer, 0, 0);
     image(activeLayer, 0, 0);
+}
+
+function fadeTrailLayer() {
+    // Apply subtle fade to create ghosting effect
+    // Lower fadeRate = longer trails (0.98 = very slow fade)
+    trailLayer.push();
+    trailLayer.noStroke();
+    trailLayer.fill(255, 255, 255, CONFIG.trail.fadeAlpha);
+    trailLayer.rect(0, 0, width, height);
+    trailLayer.pop();
 }
 
 function calculateInkDensity() {

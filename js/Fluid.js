@@ -52,7 +52,7 @@ class Fluid {
                     t
                 ) * TWO_PI;
 
-                const magnitude = 2; // base flow magnitude
+                const magnitude = 0.3; // base flow magnitude (subtle drift)
                 const vx = cos(angle) * magnitude;
                 const vy = sin(angle) * magnitude;
 
@@ -164,6 +164,14 @@ class Fluid {
         if (this.turbulence < 0.001) {
             this.turbulence = 0;
         }
+    }
+
+    /**
+     * Reset turbulence to calm state (for canvas reset)
+     */
+    resetTurbulence() {
+        this.turbulence = 0;
+        console.log('🌊 Fluid turbulence reset to calm state');
     }
 
     /**

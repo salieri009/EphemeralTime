@@ -46,6 +46,26 @@ class SunDrop {
     }
 
     /**
+     * Stamp motion trail to trail layer
+     * @param {p5.Graphics} trailLayer
+     * @param {number} turbulenceLevel - current fluid turbulence (0-1)
+     */
+    stampTrail(trailLayer, turbulenceLevel = 0) {
+        const config = this.config.trail;
+        if (!config || !config.enabled) return;
+        
+        // Sun leaves a golden trail regardless of turbulence
+        const trailAlpha = config.baseAlpha * 0.3; // fainter than regular drops
+        const trailSize = this.radius * config.sizeMultiplier;
+        
+        trailLayer.push();
+        trailLayer.noStroke();
+        trailLayer.fill(this.color[0], this.color[1], this.color[2], trailAlpha);
+        trailLayer.ellipse(this.x, this.y, trailSize);
+        trailLayer.pop();
+    }
+
+    /**
      * Calculate repulsion force for drops near the sun
      * @param {number} dropX - X position of the drop
      * @param {number} dropY - Y position of the drop

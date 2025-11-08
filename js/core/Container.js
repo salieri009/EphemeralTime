@@ -1,0 +1,165 @@
+/**
+ * Container.js - Inversion of Control Container
+ * 
+ * Enterprise Pattern: Dependency Injection Container
+ * Eliminates global variables and manages service lifecycle
+ * 
+ * Benefits:
+ * - Single source of truth for dependencies
+ * - Lazy initialization
+ * - Easy mocking for tests
+ * - Clear dependency graph
+ * 
+ * @example
+ * const container = new Container(CONFIG);
+ * container.get('clock');  // returns Clock instance
+ */
+class Container {
+    constructor(config) {
+        if (!config) {
+            throw new Error('Container: config is required');
+        }
+        
+        this.config = config;
+        this.services = new Map();
+        this.factories = new Map();
+        this.singletons = new Set();
+        
+        this._registerFactories();
+    }
+
+    /**
+     * Register service factories
+     * Factory pattern: delayed instantiation until first access
+     */
+    _registerFactories() {
+        // Core services
+        this.registerSingleton('clock', () => new Clock(this.config));
+        this.registerSingleton('fluid', () => new Fluid(this.config.fluid.resolution, this.config));
+        this.registerSingleton('colorManager', () => new ColorManager(this.config));
+        this.registerSingleton('audio', () => new Audio(this.config));
+        
+        // Rendering strategies (shared instances for performance)
+        this.registerSingleton('stampRenderer', () => 
+            new StampRenderer(this.config.drops?.stamp || {})
+        );
+        this.registerSingleton('splatterRenderer', () => 
+            new SplatterRenderer(this.config.drops?.splatter || {})
+        );
+        
+        // Particle factory (depends on other services)
+        this.registerSingleton('particleFactory', () => 
+            new ParticleFactory({
+                config: this.config,
+                fluid: this.get('fluid'),
+                colorManager: this.get('colorManager'),
+                stampRenderer: this.get('stampRenderer'),
+                splatterRenderer: this.get('splatterRenderer')
+            })
+        );
+        
+        // Object pool for performance
+        this.registerSingleton('particlePool', () =>
+            new ObjectPool(
+                () => this.get('particleFactory'),
+                this.config.performance?.poolSize || 200
+            )
+        );
+    }
+
+    /**
+     * Register a singleton service
+     * Singleton: only one instance exists
+     * 
+     * @param {string} name - Service name
+     * @param {Function} factory - Factory function that creates the service
+     */
+    registerSingleton(name, factory) {
+        if (typeof factory !== 'function') {
+            throw new Error(`Container: factory for '${name}' must be a function`);
+        }
+        
+        this.factories.set(name, factory);
+        this.singletons.add(name);
+    }
+
+    /**
+     * Register a transient service
+     * Transient: new instance created each time
+     * 
+     * @param {string} name - Service name
+     * @param {Function} factory - Factory function
+     */
+    registerTransient(name, factory) {
+        if (typeof factory !== 'function') {
+            throw new Error(`Container: factory for '${name}' must be a function`);
+        }
+        
+        this.factories.set(name, factory);
+    }
+
+    /**
+     * Get a service instance
+     * Lazy initialization: created on first access
+     * 
+     * @param {string} name - Service name
+     * @returns {*} Service instance
+     * @throws {Error} If service not registered
+     */
+    get(name) {
+        // Return cached singleton
+        if (this.services.has(name)) {
+            return this.services.get(name);
+        }
+
+        // Check if factory exists
+        if (!this.factories.has(name)) {
+            throw new Error(`Container: service '${name}' not registered. Available: ${Array.from(this.factories.keys()).join(', ')}`);
+        }
+
+        // Create instance
+        const factory = this.factories.get(name);
+        const instance = factory();
+
+        // Cache if singleton
+        if (this.singletons.has(name)) {
+            this.services.set(name, instance);
+        }
+
+        return instance;
+    }
+
+    /**
+     * Check if service is registered
+     * @param {string} name - Service name
+     * @returns {boolean}
+     */
+    has(name) {
+        return this.factories.has(name) || this.services.has(name);
+    }
+
+    /**
+     * Clear all cached services
+     * Useful for testing or hot reload
+     */
+    clear() {
+        this.services.clear();
+    }
+
+    /**
+     * Get all registered service names
+     * @returns {string[]}
+     */
+    getRegisteredServices() {
+        return Array.from(this.factories.keys());
+    }
+
+    /**
+     * Replace a service (useful for testing/mocking)
+     * @param {string} name - Service name
+     * @param {*} instance - Service instance
+     */
+    mock(name, instance) {
+        this.services.set(name, instance);
+    }
+}

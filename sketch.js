@@ -84,6 +84,7 @@ class Application {
             bg: null,
             trail: null,
             history: null,
+            fx: null,        // ✨ NEW: Effects layer for Cymatics
             active: null
         };
         
@@ -91,6 +92,7 @@ class Application {
         this.activeDrops = [];
         this.activeDrips = [];
         this.sunDrop = null;
+        this.cymaticPatterns = []; // ✨ NEW: Cymatics patterns
     }
 
     setup() {
@@ -103,9 +105,11 @@ class Application {
         this.layers.bg = createGraphics(width, height);
         this.layers.trail = createGraphics(width, height);
         this.layers.history = createGraphics(width, height);
+        this.layers.fx = createGraphics(width, height); // ✨ Effects layer
         this.layers.active = createGraphics(width, height);
         
         this.layers.trail.clear();
+        this.layers.fx.clear();
         this._initializeBackgroundLayer();
         
         // Create sun drop
@@ -159,15 +163,23 @@ class Application {
             // Distraction doesn't speed time, but creates more traces
             colorManager.update(this.turbulenceLevel);
             audio.updateTurbulence(this.turbulenceLevel);
-            fluid.updateViscosity(this.turbulenceLevel); // ✨ NEW: viscosity responds to attention
+            fluid.updateViscosity(this.turbulenceLevel);
             fluid.update();
             this.sunDrop.update(minute());
         }
+        
+        // SONIFICATION: Map SunDrop position to audio (hear time without looking)
+        const normalizedTime = this.sunDrop.x / width;
+        audio.updateTimeSonification(normalizedTime);
+        
+        // Update Cymatics patterns
+        this._updateCymaticPatterns();
         
         // Rendering
         this._fadeTrailLayer();
         this.sunDrop.stampTrail(this.layers.trail, this.turbulenceLevel);
         this._updateAndRenderDrops(fluid);
+        this._renderCymaticPatterns(); // ✨ Render Cymatics
         this.sunDrop.render(this.layers.active);
         this._renderLayers();
         
@@ -259,9 +271,13 @@ class Application {
                 fluid.applyRipple(centerX, centerY, rippleSize, rippleStrength);
             }
             
-            // 3. Strong audio feedback (bell-like)
+            // 3. Create CYMATICS pattern (visual sound wave)
+            const cymaticPattern = new CymaticPattern(centerX, centerY, data.minute);
+            this.cymaticPatterns.push(cymaticPattern);
+            
+            // 4. Strong audio feedback (bell-like)
             audio.playDropSound(centerX, data.minute);
-            console.log(`🔔 CHIME at ${data.minute} minutes - Pattern created`);
+            console.log(`🔔 CHIME at ${data.minute} minutes - Cymatics pattern + fluid ripple`);
             
         } catch (error) {
             console.error('Failed to create chime drop:', error);
@@ -313,7 +329,27 @@ class Application {
         image(this.layers.bg, 0, 0);
         image(this.layers.trail, 0, 0);
         image(this.layers.history, 0, 0);
+        image(this.layers.fx, 0, 0);      // ✨ Cymatics layer
         image(this.layers.active, 0, 0);
+    }
+
+    _updateCymaticPatterns() {
+        // Update and clean up completed patterns
+        for (let i = this.cymaticPatterns.length - 1; i >= 0; i--) {
+            const pattern = this.cymaticPatterns[i];
+            pattern.update();
+            
+            if (pattern.isComplete()) {
+                this.cymaticPatterns.splice(i, 1);
+            }
+        }
+    }
+
+    _renderCymaticPatterns() {
+        this.layers.fx.clear();
+        this.cymaticPatterns.forEach(pattern => {
+            pattern.render(this.layers.fx);
+        });
     }
 
     _fadeTrailLayer() {
@@ -352,8 +388,10 @@ class Application {
         this.layers.history.clear();
         this.layers.history.background(255, 0);
         this.layers.trail.clear();
+        this.layers.fx.clear(); // ✨ Clear Cymatics patterns
         this.activeDrops = [];
         this.activeDrips = [];
+        this.cymaticPatterns = []; // ✨ Clear patterns array
         
         const fluid = this.container.get('fluid');
         if (fluid && typeof fluid.resetTurbulence === 'function') {

@@ -179,6 +179,35 @@ class Audio {
     }
 
     /**
+     * SONIFICATION: Map SunDrop position (time) to audio filter cutoff
+     * PHILOSOPHY: "Time awakens" - sound becomes clearer as the hour progresses
+     * 
+     * @param {number} normalizedTime - Value between 0.0 (0 minutes) and 1.0 (59 minutes)
+     */
+    updateTimeSonification(normalizedTime) {
+        if (!this.soundsReady || !this.ambientFilter) return;
+        if (this.isPaused) return;
+        
+        // Map time to filter cutoff frequency
+        // 0 minutes: 200Hz (dark, muffled, dreamy - "time is asleep")
+        // 59 minutes: 2000Hz (bright, clear, alert - "time is awake")
+        const minFreq = 200;
+        const maxFreq = 2000;
+        
+        // Exponential curve for more natural perception
+        const exponent = 2; // quadratic curve
+        const curvedTime = Math.pow(normalizedTime, exponent);
+        const cutoffFreq = minFreq + (maxFreq - minFreq) * curvedTime;
+        
+        // Apply with smooth transition (0.1s to avoid clicks)
+        this.ambientFilter.freq(cutoffFreq, 0.1);
+        
+        // Subtle resonance increase for more "presence" as time progresses
+        const resonance = 1 + curvedTime * 4; // 1 → 5
+        this.ambientFilter.res(resonance);
+    }
+
+    /**
      * Adjust ambient sound based on hour progress
      * @param {number} progress - hour progress value between 0 and 1
      */

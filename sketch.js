@@ -332,7 +332,7 @@ class Application {
     _updateUI(clock) {
         const timeDisplay = select('#time-display');
         if (timeDisplay) {
-            timeDisplay.html(clock.getCurrentTimeString());
+            timeDisplay.html(clock.getTimeString());
         }
     }
 

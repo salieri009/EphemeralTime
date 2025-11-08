@@ -206,8 +206,8 @@ class InkDrop extends Particle {
      * Render motion trail to trail layer
      */
     stampTrail(trailLayer, turbulenceLevel = 0) {
-        const trailConfig = this.config.trail;
-        if (!trailConfig.enabled) return;
+        const trailConfig = this.config.drops.trail;
+        if (!trailConfig || !trailConfig.enabled) return;
 
         // Calculate trail alpha based on turbulence
         const turbulenceFactor = 1 - (turbulenceLevel * trailConfig.turbulenceEffect);

@@ -9,7 +9,7 @@
  * @abstract
  */
 class Particle {
-    constructor(x, y, config) {
+    constructor(x, y, lifespan = Infinity, config = {}) {
         // Core physics properties
         this.pos = createVector(x, y);
         this.vel = createVector(0, 0);
@@ -24,7 +24,7 @@ class Particle {
         
         // Lifecycle
         this.age = 0;
-        this.lifespan = Infinity;
+        this.lifespan = lifespan;
         this.isDead = false;
         
         // Configuration injection (Dependency Inversion Principle)

@@ -6,6 +6,7 @@ class Audio {
     constructor(config) {
         this.config = config;
         this.soundsReady = false;
+        this.currentTurbulence = 0; // Track turbulence for audio modulation
         
         // Generative drop sound
         this.dropEnv = null;
@@ -126,6 +127,25 @@ class Audio {
             
         } catch (error) {
             console.log('Error playing drop sound:', error);
+        }
+    }
+
+    /**
+     * Update the audio system with current turbulence level.
+     * @param {number} turbulence - Current turbulence level (0-1).
+     */
+    updateTurbulence(turbulence) {
+        this.currentTurbulence = turbulence;
+        
+        // Modulate ambient filter based on turbulence
+        if (this.ambientFilter && this.soundsReady) {
+            // Higher turbulence = higher filter frequency (more chaotic sound)
+            const filterFreq = map(turbulence, 0, 1, 200, 2000);
+            this.ambientFilter.freq(filterFreq);
+            
+            // Also increase resonance for a more "sharp" sound when turbulent
+            const resonance = map(turbulence, 0, 1, 1, 10);
+            this.ambientFilter.res(resonance);
         }
     }
 

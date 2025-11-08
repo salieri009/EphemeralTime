@@ -1,33 +1,48 @@
-# Ephemeral Time - p5.js 인터랙티브 시각화
+# Ephemeral Time: 주의력의 저수지 (注意力の貯水池)
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.1.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime) ![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Here-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.2.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime)
 
-![p5.js](https://img.shields.io/badge/p5%20js-ED225D?style=for-the-badge&logo=p5dotjs&logoColor=white) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
-
-![Made with JavaScript](https://img.shields.io/badge/Made%20with-JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) ![Made with p5.js](https://img.shields.io/badge/Made%20with-p5.js-ED225D?style=for-the-badge&logo=p5.js&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+![p5.js](https://img.shields.io/badge/p5%20js-ED225D?style=for-the-badge&logo=p5dotjs&logoColor=white) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
 [한국어](README.ko.md) | [English](README.en.md) | [日本語](README.ja.md)
 
-시간의 흐름을 물감의 확산으로 표현한 인터랙티브 아트 프로젝트입니다.
-매 초마다 새로운 잉크 방울이 생성되고 유체 흐름에 따라 퍼져나갑니다. 시간이 지남에 따라 점진적으로 사라지는 "에페메랄(Ephemeral)" 효과를 구현합니다.
+**주관적이고 심리적인 시간**을 인터랙티브 시각화로 탐구하는 대학 프로젝트입니다. 캔버스는 당신의 상호작용이 시간의 흐름과 모습을 직접 형성하는 "주의력의 저수지"입니다.
 
----
+## 핵심 컨셉
 
-## 프로젝트 구조
+이 시각화는 시간을 객관적이고 기계적인 상수에서 **심리적 경험**으로 변환합니다:
 
-```
-/EphemeralTime/
-│
-├── index.html           # 프로젝트 진입점
-├── style.css            # 캔버스 및 전체 레이아웃 스타일
-├── sketch.js            # p5.js 메인 로직 (setup(), draw())
-├── .gitignore           # Git 추적 제외 파일 설정
-├── README.md            # 프로젝트 문서
-│
-├── js/
-│   ├── Clock.js         # 시간 추적 및 "새로운 초" 감지
-│   ├── InkDrop.js       # 개별 잉크 방울 클래스
-│   ├── Fluid.js         # Perlin Noise 기반 유체 시뮬레이션
+- **차분한 상태 (집중된 마음)**: 상호작용하지 않으면 유체는 부드럽게 흐르고, 색상은 선명하며, 잉크 방울은 깊은 흔적을 남깁니다. 시간이 느리고 의미있게 느껴집니다.
+- **격동의 상태 (산만한 마음)**: 마우스를 빠르게 드래그하면 혼돈을 주입합니다. 유체는 격동적이 되고, 색상은 탈색되며, 방울은 빠르게 사라집니다. 시간이 빠르고 잊혀지기 쉽게 느껴집니다.
+
+**당신의 상호작용은 당신 자신의 주의력을 반영하는 거울이 됩니다.**
+
+## 주요 기능 (v0.2)
+
+### 1. 태양 방울 (시간 가독성)
+- 매 시각의 시작에 빛나는 방울이 나타남
+- 60분 동안 화면 상단을 가로질러 천천히 이동
+- 다른 방울들을 밀어내는 척력장 생성
+- 직관적이고 숫자 없는 시간 읽기 제공
+
+### 2. 차임 방울 (15분 단위 마커)
+- 매시 15, 30, 45분에 특별한 방울 출현
+- 각각 전체 캔버스에 강력한 파문 효과 생성
+- 합성된 종소리 재생
+- 리드미컬한 시간 앵커 제공
+
+### 3. 격동 시스템 (주의력 피드백)
+- 실시간으로 마우스 속도 추적
+- 빠르고 혼란스러운 움직임이 시스템에 "격동"을 주입
+- 유체 역학, 색상 채도, 오디오 복잡도에 영향
+- 상호작용을 멈추면 천천히 감쇠
+- **이것이 주관적 시간 경험의 핵심**
+
+### 4. 제너레이티브 오디오
+- 합성된 방울 소리 (분에 따라 음높이 변화)
+- 앰비언트 사운드스케이프 (격동에 의해 조절됨)
+- 15분 단위 차임 소리
+- 오디오 파일 불필요; 모든 소리가 실시간 생성
 │   └── Audio.js         # 오디오 효과 관리 (향후 구현)
 │
 ├── lib/                 # 외부 라이브러리

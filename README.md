@@ -1,6 +1,6 @@
-# Ephemeral Time - p5.js Interactive Visualization
+# Ephemeral Time: The Reservoir of Attention
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.1.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime) ![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Here-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.2.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime) ![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Here-brightgreen)
 
 ![p5.js](https://img.shields.io/badge/p5%20js-ED225D?style=for-the-badge&logo=p5dotjs&logoColor=white) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
 
@@ -8,8 +8,22 @@
 
 [한국어](README.ko.md) | [English](README.en.md) | [日本語](README.ja.md)
 
-An interactive art project that expresses the passage of time as ink spreading on paper.
-A new ink drop is generated every second and spreads according to fluid flow. It implements an "ephemeral" effect that gradually fades over time.
+An interactive art project that explores the subjective nature of time through a fluid, generative visualization. Time is represented as a **"Reservoir of Attention"** where your interaction directly shapes how time flows and appears.
+
+**New in v0.2:** The Sun Drop (hourly marker), Chime Drops (quarter-hour markers), and the Turbulence System (attention feedback).
+
+---
+
+## Core Concept
+
+### From Objective Time to Subjective Time
+
+This project visualizes time not as a mechanical constant, but as a **psychological experience**. The canvas is a reservoir that reflects your state of mind:
+
+- **Calm State (Focused)**: When you don't interact, the fluid flows smoothly, colors are rich and saturated, and ink drops leave deep, lasting marks. Time feels slow and meaningful.
+- **Turbulent State (Distracted)**: When you drag your mouse rapidly, you inject chaos into the system. The fluid becomes turbulent, colors desaturate, and drops fade quickly. Time feels fast and forgettable.
+
+This creates a feedback loop: **your interaction changes the visualization, and the visualization reflects your attention**.
 
 ---
 
@@ -25,67 +39,117 @@ A new ink drop is generated every second and spreads according to fluid flow. It
 ├── README.md            # Project documentation
 │
 ├── js/
-│   ├── Clock.js         # Time tracking and "new second" detection
+│   ├── Clock.js         # Time tracking and event emission (seconds, minutes, hours, chimes)
 │   ├── InkDrop.js       # Individual ink drop class
-│   ├── Fluid.js         # Perlin Noise based fluid simulation
-│   └── Audio.js         # Audio effects management (future implementation)
+│   ├── SunDrop.js       # Special hourly marker that drifts across the screen
+│   ├── Fluid.js         # Perlin Noise fluid simulation with turbulence system
+│   ├── ColorManager.js  # Time-based color gradients with turbulence modulation
+│   ├── Audio.js         # Generative audio synthesis (drop sounds, ambient, chimes)
+│   └── config.js        # Central configuration for all parameters
 │
 ├── lib/                 # External libraries
-│   ├── p5.js            # p5.js library
-│   └── p5.sound.js      # p5.sound library
+│   ├── p5.min.js        # p5.js library (minified)
+│   └── p5.sound.min.js  # p5.sound library (minified)
 │
-└── sounds/              # Audio files (future addition)
-    ├── drop.mp3
-    └── ambience.mp3
+├── sounds/              # Audio files (currently unused, generative synthesis used)
+│
+└── concept/             # Technical concept documentation
+    └── concept.md       # Detailed architectural breakdown
 ```
 
 ---
 
 ## Core Features
 
-### 1. **Time Management (Clock.js)**
-- Current system time tracking
-- "New second" detection → New ink drop creation
-- "New hour" detection → Hour cleansing effect trigger
-- Time progress (hourProgress) return (for visual/audio effects)
+### 1. **The Sun Drop (Hourly Readability)**
+- A bright, radiant drop appears at the top of every hour
+- It drifts slowly from left to right over 60 minutes, mimicking the sun's journey
+- Creates a "repulsion field" that pushes other drops away
+- Provides an intuitive, non-numerical way to read the approximate time
 
-### 2. **Ink Drops (InkDrop.js)**
-- Individual ink drop state management (position, size, color, opacity, lifespan)
-- Movement influenced by fluid field
-- Gradually becomes transparent over time
+### 2. **Chime Drops (Quarter-Hour Markers)**
+- Special drops appear at 15, 30, and 45 minutes past the hour
+- Each chime creates a powerful **ripple effect** that visibly disturbs the entire canvas
+- A distinct, bell-like synthesized sound plays
+- Provides rhythmic anchors within the hour
 
-### 3. **Fluid Simulation (Fluid.js)**
-- Perlin Noise based vector field generation
-- Smooth base flow over time
+### 3. **The Turbulence System (Attention Feedback)**
+- Mouse velocity is tracked in real-time
+- Fast, chaotic movements inject "turbulence" into the fluid
+- Turbulence affects:
+  - **Fluid dynamics**: Less viscous, faster flow
+  - **Color**: Desaturation (vivid → gray)
+  - **Audio**: More complex, dissonant ambient soundscape
+- Turbulence decays slowly when you stop interacting
+- **This is the heart of the subjective time experience**
+
+### 4. **Time Management (Clock.js)**
+- System time tracking
+- Event emission for seconds, minutes, hours, and quarter-hour chimes
+- Decoupled from rendering for modularity
+
+### 5. **Ink Drops (InkDrop.js)**
+- Individual ink drops with state management (position, size, color, opacity, lifespan)
+- Movement influenced by the fluid field
+- Gradually fade and transition to "stains" on the history layer
+
+### 6. **Fluid Simulation (Fluid.js)**
+- Perlin Noise based vector field
 - Mouse interaction creates vortex effects
+- Turbulence system modulates flow properties
+- Repulsion forces from the Sun Drop
 
-### 4. **Audio (Audio.js - Future Implementation)**
-- Sound effects when ink drops are created
-- Ambient sounds by time period
-- Effect modulation based on mouse speed
+### 7. **Generative Audio (Audio.js)**
+- Synthesized drop sounds (pitch varies by minute)
+- Ambient soundscape (filter modulated by turbulence)
+- Chime sounds for quarter-hour events
+- No audio files required; all sounds are generated in real-time
 
 ---
 
 ## Visual Layer Structure (Performance Optimization)
 
-**Using 3 `p5.Graphics` layers to handle 3600 objects per hour:**
+**Using 3 `p5.Graphics` layers to efficiently handle thousands of objects:**
 
 | Layer | Name | Role | Update Frequency |
 |-------|------|------|-----------------|
 | 1 | `bgLayer` | Background (paper texture) | setup() / every hour |
-| 2 | `historyLayer` | Accumulated ink (past) | when ink drops "die" |
-| 3 | `activeLayer` | Active ink (current) | every frame |
+| 2 | `historyLayer` | Accumulated ink stains (past) | when ink drops "die" |
+| 3 | `activeLayer` | Active drops and Sun Drop (current) | every frame |
 
 **Rendering Order:** bgLayer → historyLayer → activeLayer
 
 ---
 
+## How to Experience It
+
+### Reading the Time
+- **The Sun**: Look at the position of the bright, radiant drop at the top. Left = early in the hour, middle = half-past, right = approaching the next hour.
+- **Chime Drops**: Every quarter-hour (15, 30, 45), you'll see a golden drop create a ripple and hear a chime sound.
+- **Color**: The hue of second drops changes gradually over each minute, cycling through the 60-step gradient.
+
+### Interacting with Your Attention
+- **Don't Touch**: Watch the calm, focused state. Colors are vivid, movements are graceful.
+- **Drag Slowly**: Create gentle vortices in the fluid.
+- **Drag Rapidly**: Inject turbulence. Watch colors desaturate, drops fade faster, and the ambient sound become more complex.
+- **Stop**: Observe how the turbulence slowly decays, and the system returns to a calm state.
+
+**The visualization becomes a mirror of your own attentional state.**
+
+---
+
 ## Time-based Color Palette
 
-| Time Period | Primary Color | Secondary Color |
-|-------------|---------------|-----------------|
-| 00:00 ~ 06:00 (Midnight~Dawn) | Dark Navy (`#1a1a2e`) | Blue (`#0f3460`) |
-| 06:00 ~ 12:00 (Morning~Noon) | Yellow (`#ffd93d`) | Orange (`#ff6b6b`) |
+The color of each second drop is determined by the current minute (0-59), following a smooth gradient:
+
+| Time Period | Approximate Color Range |
+|-------------|------------------------|
+| 00:00-14:59 | Blue → Cyan |
+| 15:00-29:59 | Cyan → Green → Yellow |
+| 30:00-44:59 | Yellow → Orange |
+| 45:00-59:59 | Orange → Red |
+
+**Turbulence Effect**: Colors desaturate (become grayer) as turbulence increases, representing the "fading" of memorable moments during distraction.
 | 12:00 ~ 18:00 (Afternoon) | Green (`#6bcf7f`) | Cyan (`#4d96ff`) |
 | 18:00 ~ 24:00 (Evening~Night) | Purple (`#a855f7`) | Pink (`#ec4899`) |
 

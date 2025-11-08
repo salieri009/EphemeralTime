@@ -226,9 +226,18 @@ const CONFIG = {
         coronaOpacity: 100,
         pulseSpeed: 0.05,
         pulseMagnitude: 0.2,
-        repulsion: {
-            strength: 15,
-            radius: 150
+        repulsionRadius: 150,
+        repulsionStrength: 2
+    },
+
+    // ========================================
+    // CHIME DROPS (Quarter-hour markers)
+    // ========================================
+    chime: {
+        ripple: {
+            count: 3,                        // number of drops in ripple pattern
+            radius: 100,                     // radius of ripple pattern
+            sizeMultiplier: 4                // size relative to second drops
         }
     },
 

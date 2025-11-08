@@ -1,80 +1,69 @@
-/**
- * Clock.js - Time tracking and event detection
- * Detects second, minute, and hour transitions for drop generation
+﻿/**
+ * Clock.js - Time tracking and event emission
+ * Emits events for seconds, minutes, hours, and quarter-hour chimes
  */
 class Clock {
     constructor(config = CONFIG) {
         this.config = config;
-        this.prevSecond = second();
-        this.prevMinute = minute();
-        this.prevHour = hour();
+        this.lastSecond = -1;
+        this.lastMinute = -1;
+        this.lastHour = -1;
+        this.listeners = {};
     }
 
-    /**
-     * Update time values (call once per frame)
-     */
+    on(event, callback) {
+        if (!this.listeners[event]) {
+            this.listeners[event] = [];
+        }
+        this.listeners[event].push(callback);
+    }
+
+    emit(event, data) {
+        if (this.listeners[event]) {
+            this.listeners[event].forEach(callback => callback(data));
+        }
+    }
+
     update() {
-        this.prevSecond = second();
-        this.prevMinute = minute();
-        this.prevHour = hour();
+        const now = new Date();
+        const newSecond = now.getSeconds();
+        const newMinute = now.getMinutes();
+        const newHour = now.getHours();
+
+        if (newSecond !== this.lastSecond) {
+            this.emit('second', { second: newSecond, minute: newMinute, hour: newHour });
+            this.lastSecond = newSecond;
+        }
+
+        if (newMinute !== this.lastMinute) {
+            this.emit('minute', { minute: newMinute, hour: newHour });
+
+            if ([15, 30, 45].includes(newMinute)) {
+                this.emit('chime', { minute: newMinute, hour: newHour });
+            }
+
+            this.lastMinute = newMinute;
+        }
+
+        if (newHour !== this.lastHour) {
+            this.emit('hour', { hour: newHour });
+            this.lastHour = newHour;
+        }
     }
 
-    /**
-     * Check if a new second just started
-     * @returns {boolean}
-     */
-    isNewSecond() {
-        return second() !== this.prevSecond;
-    }
-
-    /**
-     * Check if a new minute just started
-     * @returns {boolean}
-     */
-    isNewMinute() {
-        return minute() !== this.prevMinute;
-    }
-
-    /**
-     * Check if a new hour just started
-     * @returns {boolean}
-     */
-    isNewHour() {
-        return hour() !== this.prevHour;
-    }
-
-    /**
-     * Get current minute (0-59) for color mapping
-     * @returns {number}
-     */
     getCurrentMinute() {
-        return minute();
+        return new Date().getMinutes();
     }
 
-    /**
-     * Get current hour (0-23)
-     * @returns {number}
-     */
     getCurrentHour() {
-        return hour();
+        return new Date().getHours();
     }
 
-    /**
-     * Get hour in 12-hour format
-     * @returns {number} 0-11 (0 = midnight)
-     */
-    getHour12() {
-        return hour() % 12;
-    }
-
-    /**
-     * Get current time as formatted string
-     * @returns {string} "HH:MM:SS"
-     */
     getTimeString() {
-        const h = String(hour()).padStart(2, '0');
-        const m = String(minute()).padStart(2, '0');
-        const s = String(second()).padStart(2, '0');
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
         return `${h}:${m}:${s}`;
     }
 }

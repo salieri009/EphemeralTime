@@ -1,16 +1,50 @@
-Ephemeral Time — p5.js Interactive Visualization (University Project)
+# Ephemeral Time: The Reservoir of Attention
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.1.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime) ![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Here-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.2.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime) ![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Here-brightgreen)
 
-![p5.js](https://img.shields.io/badge/p5%20js-ED225D?style=for-the-badge&logo=p5dotjs&logoColor=white) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
-
-![Made with JavaScript](https://img.shields.io/badge/Made%20with-JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) ![Made with p5.js](https://img.shields.io/badge/Made%20with-p5.js-ED225D?style=for-the-badge&logo=p5.js&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+![p5.js](https://img.shields.io/badge/p5%20js-ED225D?style=for-the-badge&logo=p5dotjs&logoColor=white) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
 [한국어](README.ko.md) | [English](README.en.md) | [日本語](README.ja.md)
 
-This repository contains a university project implemented with p5.js. The visualization expresses the passage of time as ink spreading on a surface: a new ink drop is generated every second and spreads according to a Perlin-noise-based fluid field. The visual behavior is intentionally ephemeral.
+A university project exploring **subjective, psychological time** through interactive visualization. The canvas is a "Reservoir of Attention" where your interaction directly shapes how time flows and appears.
 
-Project structure (concise)
+## Core Concept
+
+This visualization transforms time from an objective, mechanical constant into a **psychological experience**:
+
+- **Calm State (Focused Mind)**: When you don't interact, the fluid flows smoothly, colors are vivid, and ink drops leave deep marks. Time feels slow and meaningful.
+- **Turbulent State (Distracted Mind)**: When you drag your mouse rapidly, you inject chaos. The fluid becomes turbulent, colors desaturate, and drops fade quickly. Time feels fast and forgettable.
+
+**Your interaction becomes a mirror of your own attention.**
+
+## Key Features (v0.2)
+
+### 1. The Sun Drop (Hourly Readability)
+- A radiant drop appears at the start of each hour
+- It drifts from left to right across the top of the screen over 60 minutes
+- Creates a repulsion field, pushing other drops away
+- Provides intuitive, non-numerical time reading
+
+### 2. Chime Drops (Quarter-Hour Markers)
+- Special drops appear at 15, 30, and 45 minutes past the hour
+- Each creates a powerful ripple effect across the entire canvas
+- A synthesized chime sound plays
+- Provides rhythmic temporal anchors
+
+### 3. The Turbulence System (Attention Feedback)
+- Tracks your mouse velocity in real-time
+- Fast, chaotic movements inject "turbulence" into the system
+- Affects fluid dynamics, color saturation, and audio complexity
+- Decays slowly when you stop interacting
+- **This is the heart of the subjective time experience**
+
+### 4. Generative Audio
+- Synthesized drop sounds (pitch varies by minute)
+- Ambient soundscape (modulated by turbulence)
+- Quarter-hour chime sounds
+- No audio files required; all sounds generated in real-time
+
+## Project Structure
 
 ```
 /EphemeralTime/

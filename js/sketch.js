@@ -52,6 +52,9 @@ function draw() {
     // Update turbulence (decay over time)
     fluid.updateTurbulence();
 
+    // Get current turbulence level
+    const turbulence = fluid.getTurbulence();
+
     // Update the clock
     clock.update();
 
@@ -59,7 +62,12 @@ function draw() {
     fluid.update();
 
     // Update the color manager with turbulence
-    colorManager.update(fluid.getTurbulence());
+    colorManager.update(turbulence);
+
+    // Update audio with turbulence
+    if (config.audio.enabled) {
+        audio.updateTurbulence(turbulence);
+    }
 
     // Update and render the SunDrop
     sunDrop.update(minute());

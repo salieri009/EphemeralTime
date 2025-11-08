@@ -89,6 +89,14 @@ const CONFIG = {
         noiseSpeed: 0.003,                   // animation speed
         baseFlowMagnitude: 1.5,              // base current strength
         
+        // Turbulence system (attention reservoir)
+        turbulence: {
+            current: 0,                      // current turbulence level (0-1)
+            decay: 0.98,                     // how quickly turbulence fades
+            velocityThreshold: 5,            // min mouse velocity to add turbulence
+            maxValue: 1.0                    // maximum turbulence level
+        },
+        
         // Mouse interaction (drag to create flow)
         mouseForce: {
             enabled: true,
@@ -205,6 +213,56 @@ const CONFIG = {
                 freqRange: [200, 2000]       // frequency range for density mapping
             }
         }
+    },
+
+    // ========================================
+    // SUN DROP (HOURLY MARKER)
+    // ========================================
+    sun: {
+        size: 20,
+        yPosition: 30,
+        color: [255, 255, 0], // Bright yellow
+        coreOpacity: 255,
+        coronaOpacity: 100,
+        pulseSpeed: 0.05,
+        pulseMagnitude: 0.2,
+        repulsion: {
+            strength: 15,
+            radius: 150
+        }
+    },
+
+    // ========================================
+    // COLOR & APPEARANCE
+    // ========================================
+    color: {
+        // Global color settings
+        background: [255, 255, 255],        // white
+        grid: [240, 240, 240],              // light gray grid
+        text: [50, 50, 50],                 // dark gray text
+        link: [0, 120, 255],                // blue links
+
+        // Drop colors (based on type)
+        drop: {
+            second: [30, 120, 200],          // deep blue
+            minute: [50, 180, 150],         // cyan-green
+            hour: [200, 50, 50]             // red
+        },
+
+        // Sun drop (hour marker)
+        sun: {
+            core: [255, 255, 0],             // bright yellow core
+            corona: [255, 204, 0]            // softer yellow corona
+        }
+    },
+
+    // ========================================
+    // MISCELLANEOUS
+    // ========================================
+    debug: {
+        showFPS: true,
+        showGrid: true,
+        showDropInfo: true
     }
 };
 

@@ -188,4 +188,30 @@ class Audio {
     update(inkDensity) {
         this.updateAmbientFilter(inkDensity);
     }
+
+    /**
+     * Plays a generative sound for a chime drop.
+     * @param {InkDrop} drop - The ink drop that triggered the sound.
+     */
+    playChimeSound(drop) {
+        if (!this.config.audio.chimeSound.useGenerative || !this.audioInitialized) return;
+
+        const settings = this.config.audio.chimeSound;
+        const chimeEnv = new p5.Envelope();
+        const chimeOsc = new p5.Oscillator(settings.oscillator.type);
+
+        chimeEnv.setADSR(
+            settings.oscillator.attack,
+            settings.oscillator.decay,
+            settings.oscillator.sustain,
+            settings.oscillator.release
+        );
+        chimeEnv.setRange(settings.volume, 0);
+
+        const freq = settings.oscillator.baseFreq;
+        chimeOsc.freq(freq);
+
+        chimeOsc.start();
+        chimeEnv.play(chimeOsc);
+    }
 }

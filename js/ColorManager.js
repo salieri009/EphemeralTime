@@ -7,6 +7,7 @@ class ColorManager {
     constructor(config = CONFIG) {
         this.config = config;
         this.colorGradient = [];
+        this.currentTurbulence = 0; // Track turbulence for color adjustments
         this.buildGradient();
     }
 

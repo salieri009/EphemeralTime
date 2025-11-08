@@ -15,6 +15,12 @@ class Fluid {
         this.config = config;
         this.currentViscosity = config.fluid.viscosity.baseValue;
         
+        // Turbulence state (attention reservoir)
+        this.turbulence = 0;
+        
+        // Sun drop reference (for repulsion)
+        this.sunDrop = null;
+        
         this.initField();
     }
 
@@ -130,6 +136,45 @@ class Fluid {
     }
 
     /**
+     * Add turbulence to the system based on mouse velocity.
+     * @param {number} mouseVelocity - The velocity of the mouse movement.
+     */
+    addTurbulence(mouseVelocity) {
+        if (mouseVelocity > this.config.fluid.turbulence.velocityThreshold) {
+            const turbulenceIncrease = map(
+                mouseVelocity,
+                this.config.fluid.turbulence.velocityThreshold,
+                50, // max expected velocity
+                0,
+                0.1
+            );
+            this.turbulence = constrain(
+                this.turbulence + turbulenceIncrease,
+                0,
+                this.config.fluid.turbulence.maxValue
+            );
+        }
+    }
+
+    /**
+     * Update the turbulence level (decay over time).
+     */
+    updateTurbulence() {
+        this.turbulence *= this.config.fluid.turbulence.decay;
+        if (this.turbulence < 0.001) {
+            this.turbulence = 0;
+        }
+    }
+
+    /**
+     * Get the current turbulence level (0-1).
+     * @returns {number} Current turbulence level.
+     */
+    getTurbulence() {
+        return this.turbulence;
+    }
+
+    /**
      * Debug: visualize the vector field
      * @param {number} scale - arrow scale
      */
@@ -156,5 +201,115 @@ class Fluid {
             }
         }
         pop();
+    }
+
+    addDrop(drop) {
+        this.inkDrops.push(drop);
+        this.applyInk(drop);
+
+        // Apply a ripple effect if the drop's config has it enabled
+        if (drop.config.ripple && drop.config.ripple.enabled) {
+            this.applyRipple(drop.x, drop.y, drop.config.ripple.strength, drop.config.ripple.radius);
+        }
+    }
+
+    /**
+     * Applies a radial force to the velocity field to create a ripple.
+     * @param {number} x - The center x-coordinate of the ripple.
+     * @param {number} y - The center y-coordinate of the ripple.
+     * @param {number} strength - The force of the ripple.
+     * @param {number} radius - The radius of the ripple's effect.
+     */
+    applyRipple(x, y, strength, radius) {
+        const cellX = Math.floor(x / this.scale);
+        const cellY = Math.floor(y / this.scale);
+        const radiusSq = (radius / this.scale) * (radius / this.scale);
+
+        for (let i = -Math.floor(radius / this.scale); i <= Math.floor(radius / this.scale); i++) {
+            for (let j = -Math.floor(radius / this.scale); j <= Math.floor(radius / this.scale); j++) {
+                const targetX = cellX + i;
+                const targetY = cellY + j;
+
+                if (targetX >= 0 && targetX < this.width && targetY >= 0 && targetY < this.height) {
+                    const dx = i;
+                    const dy = j;
+                    const distSq = dx * dx + dy * dy;
+
+                    if (distSq < radiusSq) {
+                        const index = this.IX(targetX, targetY);
+                        const dist = Math.sqrt(distSq);
+                        
+                        // Avoid division by zero
+                        if (dist > 0) {
+                            const force = strength * (1 - dist / (radius / this.scale));
+                            this.vx[index] += (dx / dist) * force;
+                            this.vy[index] += (dy / dist) * force;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    // ========================================
+    // SIMULATION STEP
+    // ========================================
+    step() {
+        // Add a repulsion force from the sun drop
+        if (this.sunDrop) {
+            this.applyRepulsion(
+                this.sunDrop.x,
+                this.sunDrop.y,
+                this.sunDrop.config.repulsion.strength,
+                this.sunDrop.config.repulsion.radius
+            );
+        }
+
+        // Standard fluid simulation steps
+        this.addSource(this.density, this.s);
+        this.diffuse(this.vx0, this.vx, this.visc, this.dt);
+        this.project(this.vx, this.vy, this.vx0, this.vy0);
+    }
+
+    /**
+     * Applies a radial repulsion force to the velocity field.
+     * @param {number} x - The center x-coordinate of the repulsion.
+     * @param {number} y - The center y-coordinate of the repulsion.
+     * @param {number} strength - The force of the repulsion.
+     * @param {number} radius - The radius of the repulsion's effect.
+     */
+    applyRepulsion(x, y, strength, radius) {
+        const cellX = Math.floor(x / this.scale);
+        const cellY = Math.floor(y / this.scale);
+        const radiusSq = (radius / this.scale) * (radius / this.scale);
+
+        for (let i = -Math.floor(radius / this.scale); i <= Math.floor(radius / this.scale); i++) {
+            for (let j = -Math.floor(radius / this.scale); j <= Math.floor(radius / this.scale); j++) {
+                const targetX = cellX + i;
+                const targetY = cellY + j;
+
+                if (targetX >= 0 && targetX < this.width && targetY >= 0 && targetY < this.height) {
+                    const dx = targetX - cellX;
+                    const dy = targetY - cellY;
+                    const distSq = dx * dx + dy * dy;
+
+                    if (distSq > 0 && distSq < radiusSq) {
+                        const index = this.IX(targetX, targetY);
+                        const dist = Math.sqrt(distSq);
+                        const force = (strength / (distSq + 0.0001)) * (1 - dist / (radius / this.scale));
+                        this.vx[index] += (dx / dist) * force;
+                        this.vy[index] += (dy / dist) * force;
+                    }
+                }
+            }
+        }
+    }
+
+    // ========================================
+    // RENDERING
+    // ========================================
+    render() {
+        // Rendering code here (e.g., drawing the fluid simulation to the canvas)
     }
 }

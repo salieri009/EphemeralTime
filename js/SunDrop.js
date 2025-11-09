@@ -47,6 +47,9 @@ class SunDrop {
 
     /**
      * Stamp motion trail to trail layer
+     * PHILOSOPHY: The sun's path is objective and unwavering, 
+     * a constant reference point against which subjective moments (ink drops) are measured.
+     * 
      * @param {p5.Graphics} trailLayer
      * @param {number} turbulenceLevel - current fluid turbulence (0-1)
      */

@@ -16,6 +16,7 @@ class Audio {
         this.config = config;
         this.soundsReady = false;
         this.currentTurbulence = 0; // Track turbulence for audio modulation
+        this.lastSonificationValue = 0.5; // ✨ NEW: Track last sonification value for visual feedback
         
         // Generative drop sound
         this.dropEnv = null;
@@ -197,6 +198,9 @@ class Audio {
         if (!this.soundsReady || !this.ambientFilter) return;
         if (this.isPaused) return;
         
+        // Store for visual feedback loop
+        this.lastSonificationValue = normalizedTime;
+        
         // Map time to filter cutoff frequency
         // 0 minutes: 200Hz (dark, muffled, dreamy - "time is asleep")
         // 59 minutes: 2000Hz (bright, clear, alert - "time is awake")
@@ -214,6 +218,16 @@ class Audio {
         // Subtle resonance increase for more "presence" as time progresses
         const resonance = 1 + curvedTime * 4; // 1 → 5
         this.ambientFilter.res(resonance);
+    }
+
+    /**
+     * Get the last sonification value for visual-audio feedback loop
+     * PHILOSOPHY: "Closing the synesthetic loop" - audio brightness visually rhymes with ink color
+     * 
+     * @returns {number} Last sonification value (0-1)
+     */
+    getLastSonificationValue() {
+        return this.lastSonificationValue;
     }
 
     /**

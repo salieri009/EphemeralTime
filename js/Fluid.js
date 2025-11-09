@@ -162,6 +162,38 @@ class Fluid {
     }
 
     /**
+     * Applies an outward radial force from a center point, simulating a shockwave.
+     * PHILOSOPHY: A significant event (chime) should physically disturb the "reservoir of attention".
+     * Sound becomes a tangible force that creates visible ripples in the mental landscape.
+     * 
+     * @param {number} centerX - The center x-coordinate of the force.
+     * @param {number} centerY - The center y-coordinate of the force.
+     * @param {number} radius - The current radius of the shockwave.
+     * @param {number} strength - The strength of the force (0-1).
+     */
+    applyCircularForce(centerX, centerY, radius, strength) {
+        const gridX = Math.floor(centerX / this.resolution);
+        const gridY = Math.floor(centerY / this.resolution);
+        const gridRadius = Math.ceil(radius / this.resolution);
+
+        for (let y = gridY - gridRadius; y <= gridY + gridRadius; y++) {
+            for (let x = gridX - gridRadius; x <= gridX + gridRadius; x++) {
+                if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
+                    const dx = (x - gridX) * this.resolution;
+                    const dy = (y - gridY) * this.resolution;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Apply force only to a thin band at the shockwave's edge
+                    if (Math.abs(distance - radius) < this.resolution * 2.5) {
+                        const forceVec = createVector(dx, dy).normalize().mult(strength);
+                        this.field[y][x].add(forceVec);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Add turbulence to the system based on mouse velocity.
      * PHILOSOPHY: Attention reservoir fills gradually, empties gradually
      * Natural inertia creates realistic "attention momentum"

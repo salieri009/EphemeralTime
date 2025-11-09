@@ -73,19 +73,28 @@ class ColorManager {
 
     /**
      * Get realistic ink color for given time
-     * Applies paper absorption and turbulence effects
+     * Applies paper absorption, turbulence, and sonification effects
      * 
      * @param {number} minute - minute of the hour (0-59)
      * @param {number} hour - hour of the day (0-23)
+     * @param {number} sonificationValue - audio brightness value (0-1) for visual-audio feedback
      * @returns {p5.Color} realistic ink color
      */
-    getColorForTime(minute, hour) {
+    getColorForTime(minute, hour, sonificationValue = 0.5) {
         minute = constrain(minute, 0, 59);
         let c = this.colorGradient[minute];
 
         let r = red(c);
         let g = green(c);
         let b = blue(c);
+
+        // PHILOSOPHY: "Closing the synesthetic loop"
+        // As the sound brightens (higher filter cutoff), the ink becomes slightly more vibrant
+        // This creates a visual rhyme with the audio, making the connection undeniable
+        const brightnessFactor = lerp(0.92, 1.08, sonificationValue);
+        r *= brightnessFactor;
+        g *= brightnessFactor;
+        b *= brightnessFactor;
 
         // Effect 1: Turbulence creates "muddy" mixed ink
         // PHILOSOPHY: Scattered attention muddies perception

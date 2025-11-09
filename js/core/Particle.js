@@ -1,6 +1,11 @@
 /**
  * Particle.js - Base class for all movable entities
  * 
+ * PHILOSOPHY: "Every moment is a particle in the flow of time"
+ * Each particle (InkDrop, InkDrip) represents a discrete moment or trace.
+ * The base class provides shared physics and lifecycle, while subclasses
+ * define how that moment manifests visually and behaviorally.
+ * 
  * Separation of Concerns:
  * - Physics: position, velocity, acceleration
  * - Lifecycle: age, lifespan, death detection
@@ -100,7 +105,11 @@ class Particle {
     
     /**
      * Reset particle to initial state (for Object Pooling)
+     * PHILOSOPHY: "Treat objects as renewable resources, not disposable trash"
      * PERFORMANCE: Reusing particles reduces GC pressure by 50-70%
+     * 
+     * Like moments being rewritten in the reservoir of attention,
+     * particles are recycled rather than constantly created/destroyed.
      * 
      * @param {number} x - New X position
      * @param {number} y - New Y position

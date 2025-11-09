@@ -116,6 +116,10 @@ class Application {
         // Performance monitoring
         this.frameRateHistory = [];
         this.frameRateAverage = 60;
+        
+        // ✨ Onboarding UX
+        this.hasInteracted = false;
+        this.onboardingAlpha = 255;
     }
 
     /**
@@ -226,6 +230,7 @@ class Application {
         // Audio and UI
         const inkDensity = this._calculateInkDensity();
         audio.update(inkDensity);
+        this._renderOnboarding(); // ✨ Onboarding UX cue
         this._updateUI(clock);
     }
 
@@ -234,7 +239,9 @@ class Application {
             const colorManager = this.container.get('colorManager');
             const audio = this.container.get('audio');
             
-            const dropColor = colorManager.getColorForTime(data.minute, data.hour);
+            // PHILOSOPHY: Visual-audio feedback loop - audio brightness influences ink vibrancy
+            const sonificationValue = audio.getLastSonificationValue();
+            const dropColor = colorManager.getColorForTime(data.minute, data.hour, sonificationValue);
             const x = random(width * 0.2, width * 0.8);
             const y = random(height * 0.2, height * 0.8);
             
@@ -251,7 +258,8 @@ class Application {
             const colorManager = this.container.get('colorManager');
             const audio = this.container.get('audio');
             
-            const dropColor = colorManager.getColorForTime(data.minute, data.hour);
+            const sonificationValue = audio.getLastSonificationValue();
+            const dropColor = colorManager.getColorForTime(data.minute, data.hour, sonificationValue);
             const x = random(width * 0.1, width * 0.9);
             const y = random(height * 0.1, height * 0.9);
             
@@ -268,7 +276,8 @@ class Application {
             const colorManager = this.container.get('colorManager');
             const audio = this.container.get('audio');
             
-            const dropColor = colorManager.getColorForTime(0, data.hour);
+            const sonificationValue = audio.getLastSonificationValue();
+            const dropColor = colorManager.getColorForTime(0, data.hour, sonificationValue);
             const x = width / 2;
             const y = height / 2;
             
@@ -286,7 +295,8 @@ class Application {
             const audio = this.container.get('audio');
             const fluid = this.container.get('fluid');
             
-            const dropColor = colorManager.getColorForTime(data.minute, data.hour);
+            const sonificationValue = audio.getLastSonificationValue();
+            const dropColor = colorManager.getColorForTime(data.minute, data.hour, sonificationValue);
             const centerX = width / 2 + random(-100, 100);
             const centerY = height / 2 + random(-100, 100);
             const rippleCount = CONFIG.chime.ripple.count;
@@ -386,7 +396,9 @@ class Application {
             
             // Apply circular force to fluid for each active ring
             if (activeRings && activeRings.length > 0) {
-                fluid.applyCircularForce(activeRings);
+                activeRings.forEach(ring => {
+                    fluid.applyCircularForce(ring.x, ring.y, ring.radius, ring.strength);
+                });
             }
             
             if (pattern.isComplete()) {
@@ -446,6 +458,41 @@ class Application {
         const fluid = this.container.get('fluid');
         if (fluid && typeof fluid.resetTurbulence === 'function') {
             fluid.resetTurbulence();
+        }
+    }
+
+    /**
+     * Render subtle onboarding cue for first-time users
+     * PHILOSOPHY: "Discovery without disruption" - guide intuitively without tutorials
+     */
+    _renderOnboarding() {
+        if (!this.hasInteracted && this.onboardingAlpha > 0) {
+            const fluid = this.container.get('fluid');
+            
+            // Check if user has interacted (turbulence detected)
+            if (fluid.getTurbulence() > 0.01) {
+                this.hasInteracted = true;
+            }
+
+            // Fade out after interaction
+            if (this.hasInteracted) {
+                this.onboardingAlpha -= 5;
+            }
+
+            // Render pulsing text near cursor
+            push();
+            textAlign(CENTER, CENTER);
+            textSize(16);
+            textFont('Georgia'); // Elegant, readable font
+            
+            // Gentle pulse effect
+            const pulse = sin(frameCount * 0.05) * 10 + 245;
+            const alpha = this.onboardingAlpha * (pulse / 255);
+            
+            fill(100, alpha);
+            noStroke();
+            text("Disturb the flow...", mouseX, mouseY - 40);
+            pop();
         }
     }
 

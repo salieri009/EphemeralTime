@@ -1,6 +1,15 @@
 /**
- * Audio.js - Audio effects manager module (generative synthesis)
- * this is for test run for draft implmentation
+ * Audio.js - Generative Audio Synthesis for Temporal Sonification
+ * 
+ * PHILOSOPHY: "Hear Time Without Looking"
+ * Sound provides non-visual temporal awareness through three layers:
+ * 1. Drop sounds: Individual moments (discrete time events)
+ * 2. Ambient drone: Continuous time flow (background temporal awareness)
+ * 3. Filter cutoff: Sun position mapping (hear the passage of time)
+ * 
+ * Turbulence adds chaotic oscillator layer - distracted mind creates auditory noise.
+ * 
+ * TECHNICAL: Generative synthesis (no audio files), real-time parameter modulation
  */
 class Audio {
     constructor(config) {

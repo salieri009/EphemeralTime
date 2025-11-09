@@ -1,4 +1,4 @@
-# Ephemeral Time: A Technical Concept Document
+# Ephemeral Time: A Technical & Philosophical Concept (v2.0)
 
 ## 1. Project Vision & Core Metaphor
 
@@ -8,42 +8,46 @@
 
 ---
 
-## 2. System Architecture: A Modular Approach
+## 2. System Architecture: Enterprise-Grade Modularity (v2.0)
 
-The system is designed with a clear separation of concerns, enabling modularity and scalability. Each component has a distinct responsibility:
+The system is designed with an **Inversion of Control (IoC) Container**, promoting extreme modularity and scalability. Each component has a distinct responsibility and receives its dependencies from the container.
 
-- **`sketch.js` (Orchestrator)**: The main p5.js sketch that initializes all modules and manages the main render loop. It acts as the central hub connecting all other components.
-- **`Clock.js` (The Timekeeper)**: Responsible for tracking system time and emitting events for seconds, minutes, hours, and quarter-hour "chimes." It decouples time logic from rendering.
-- **`InkDrop.js` (The Actor)**: Represents a single drop of ink. It manages its own lifecycle, including its position, size, color, and fade-out behavior. It is a self-contained entity.
-- **`SunDrop.js` (The Celestial Marker)**: A unique actor representing the hour. It moves independently of the fluid, providing a clear, non-numerical representation of the hour's progression.
-- **`Fluid.js` (The Environment / State of Mind)**: Simulates the physics of the "attention reservoir." It generates a vector field that dictates the movement of `InkDrop` instances and whose properties (turbulence, viscosity) change based on user interaction, reflecting the user's state of focus.
-- **`ColorManager.js` (The Artist)**: Manages the entire color palette. It provides colors for drops and modulates saturation based on the fluid's turbulence.
-- **`Audio.js` (The Sound Designer)**: Manages generative audio. It creates sounds for drops and an evolving ambient soundscape that reflects the current state of the attention reservoir.
-- **`config.js` (The Rulebook)**: A centralized configuration file for all magic numbers and tunable parameters.
+- **`Container.js` (The Single Source of Truth)**: Manages the lifecycle and dependencies of all services. Eliminates global variables and provides a clear architectural overview.
+- **`sketch.js` (The Orchestrator)**: Initializes the container and runs the main application loop. It requests services from the container and coordinates their interactions.
+- **`Clock.js` (The Objective Timekeeper)**: Emits objective time events (second, minute, hour, chime). It represents the universal, unchanging flow of time.
+- **`ParticleFactory.js` (The Creator)**: A centralized factory for creating all particle types (`InkDrop`, `InkDrip`, `SunDrop`). It injects all necessary dependencies into the particles it creates.
+- **`Particle.js` (The Abstract Actor)**: A base class providing core physics, lifecycle management, and hooks for extension.
+- **`InkDrop.js` (The Subjective Trace)**: Represents a single moment (a drop of ink). Its behavior (movement, trail, lifespan) is a product of its interaction with the environment (the fluid).
+- **`SunDrop.js` (The Celestial Marker)**: A unique particle representing the hour's progression, independent of the fluid. It repels other drops, creating a "sacred space" for objective time.
+- **`Fluid.js` (The Environment / State of Mind)**: Simulates the "attention reservoir." Its turbulence and viscosity are direct reflections of the user's focus.
+- **`ColorManager.js` (The Alchemist)**: Manages the color palette, simulating fountain pen ink chemistry. It translates time and turbulence into color.
+- **`Audio.js` (The Sound Designer)**: Generates real-time audio to sonify time, making it perceivable without looking.
+- **`config.js` (The Rulebook)**: Centralized configuration for all tunable parameters.
 
 ---
 
-## 3. Key Conceptual & Implementation Pillars
+## 3. Key Conceptual & Implementation Pillars (v2.0)
 
-### 3.1. Pillar 1: The "Sun" Drop (Hourly Readability)
-To make the clock intuitively readable without numbers, a special hourly marker provides a macro-level view of time's passage.
+### 3.1. Pillar 1: The "Sun" Drop & Repulsion (Objective vs. Subjective)
+-   **Concept**: The Sun Drop moves predictably, representing objective time. It actively repels ink drops, symbolizing how our subjective experiences ("ink drops") can't alter the relentless march of objective time.
+-   **Implementation**: `SunDrop.js` has a `getRepulsionForce()` method. `InkDrop.js` calls this within its physics update, creating a dynamic interaction.
+-   **UX Payoff**: Provides a clear, non-numerical way to gauge the hour while reinforcing the core theme.
 
--   **Concept**: At the top of every hour, a single, bright "Sun" drop appears. It drifts slowly across the top of the screen over the course of the 60 minutes, mimicking the sun's journey across the sky.
--   **Implementation**: A new `SunDrop.js` class will manage this actor. Its `x` position will be directly mapped to the current minute, making it independent of the fluid simulation. It will have a unique radiant visual and will gently repel other drops, signifying its importance.
--   **UX Payoff**: Provides an immediate, glanceable way to gauge the approximate time within the hour (e.g., "the sun is halfway across, so it's about half-past").
+### 3.2. Pillar 2: Cymatics & Chimes (Seeing the Sound of Time)
+-   **Concept**: At 15, 30, and 45 minutes, a "Chime" event occurs. This doesn't just create a sound; it creates a *visible sound wave* (Cymatics) that physically interacts with the fluid.
+-   **Implementation**: `CymaticPattern.js` generates expanding rings. Its `update()` method returns the active wave fronts, which are passed to `Fluid.applyCircularForce()` to create a tangible ripple in the ink.
+-   **UX Payoff**: A profound synesthetic experience where time is not just heard, but seen and felt as a physical force.
 
-### 3.2. Pillar 2: The "Chime" Drops (Rhythmic Anchors)
-To punctuate the flow of time and add further structure, quarter-hour events create noticeable, rhythmic disturbances.
+### 3.3. Pillar 3: The Fluid as "Attention" (Interactive Depth & Inertia)
+-   **Concept**: The fluid's behavior is a direct reflection of the user's focus.
+    *   **Calm State (High Focus)**: With no interaction, the fluid is viscous. Drops leave clear, lasting stains. The audio is meditative.
+    *   **Turbulent State (Low Focus)**: Mouse interaction introduces chaos. The fluid becomes less viscous, colors desaturate, and drops diffuse quickly. The audio becomes more complex.
+-   **Implementation**: User mouse velocity updates a `targetTurbulence` value in `Fluid.js`. The actual `turbulence` smoothly interpolates towards the target, creating a natural **"attention inertia."** This value is then used to modulate viscosity, color, and audio.
+-   **UX Payoff**: A meaningful feedback loop that reflects the user's mental state. The inertia makes the interaction feel more natural and less twitchy.
 
--   **Concept**: At 15, 30, and 45 minutes past the hour, a "Chime" drop appears. Its defining characteristic is the **ripple effect** it creates upon entering the reservoir.
--   **Implementation**: The `Clock.js` emits a `chime` event. The resulting drop is configured in `config.js` to trigger a radial force in `Fluid.js`, creating a visible wave that expands outwards.
--   **UX Payoff**: These periodic ripples act as temporal signposts, making the passage of time feel more structured and rhythmic. They are moments of punctuation in the otherwise continuous flow.
-
-### 3.3. Pillar 3: The Fluid as "Attention" (Interactive Depth)
-This is the core of the subjective experience. The fluid's behavior is a direct reflection of the user's interaction, representing their state of focus.
-
--   **Concept**:
-    *   **Calm State (High Focus)**: With no user interaction, the fluid is slow and viscous. Drops move gracefully and leave clear, lasting stains. The audio is a simple, meditative tone. This represents a focused mind.
-    *   **Turbulent State (Low Focus)**: When the user interacts by dragging the mouse, they introduce chaos. The fluid becomes faster and less viscous, and colors desaturate. Drops diffuse quickly, leaving fainter marks. The audio becomes more complex and dissonant. This represents a distracted mind where time feels faster and less memorable.
--   **Implementation**: User mouse velocity will be measured in `sketch.js`. This "turbulence" value will be passed to `Fluid.js` to modify its viscosity and diffusion parameters, and to `ColorManager.js` and `Audio.js` to modulate saturation and sound complexity.
--   **UX Payoff**: The interaction model is elevated from simple physics play to a meaningful feedback loop. The user sees a direct reflection of their own attentional state, creating a powerful, personal, and deeply engaging experience that fulfills the brief's highest ambitions.
+### 3.4. Pillar 4: Zen & Debug Modes (User Experience)
+-   **Concept**: Allow the user to control their experience.
+-   **Implementation**:
+    -   **Zen Mode (`Z` key)**: Hides the numerical time display, encouraging the user to perceive time through the visualization alone.
+    -   **Debug Mode (`D` key)**: Displays an overlay with performance metrics (FPS, particle counts, turbulence), aiding in development and optimization.
+-   **UX Payoff**: Empowers the user, providing both a pure, immersive experience and a transparent, technical one.

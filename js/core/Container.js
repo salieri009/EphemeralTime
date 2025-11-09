@@ -1,14 +1,17 @@
 /**
  * Container.js - Inversion of Control Container
  * 
+ * ARCHITECTURE PHILOSOPHY: "Single Source of Truth"
  * Enterprise Pattern: Dependency Injection Container
- * Eliminates global variables and manages service lifecycle
+ * Eliminates global variables and manages service lifecycle with clarity.
+ * Just as time provides a universal reference frame, the Container provides
+ * a universal service registry - one place to understand all dependencies.
  * 
  * Benefits:
  * - Single source of truth for dependencies
- * - Lazy initialization
+ * - Lazy initialization (services created only when needed)
  * - Easy mocking for tests
- * - Clear dependency graph
+ * - Clear dependency graph (readable architecture)
  * 
  * @example
  * const container = new Container(CONFIG);

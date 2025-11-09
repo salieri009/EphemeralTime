@@ -133,6 +133,55 @@ class InkDrop extends Particle {
     onDeath() {
         this._markChildDripsForCleanup();
     }
+    
+    /**
+     * Hook: Reset for object pooling
+     * PERFORMANCE: Reusing InkDrop instances reduces GC pressure
+     * 
+     * @param {Object} params - {color, type}
+     */
+    onReset(params) {
+        const { color, type = 'second' } = params;
+        
+        // Recalculate properties based on type
+        const baseSize = this.config.drops.second.baseSize;
+        
+        if (type === 'minute') {
+            this.targetSize = baseSize * this.config.drops.minute.sizeMultiplier;
+            this.lifespan = this.config.drops.minute.lifespan;
+            this.initialOpacity = this.config.drops.minute.opacity;
+        } else if (type === 'hour') {
+            this.targetSize = baseSize * this.config.drops.hour.sizeMultiplier;
+            this.lifespan = this.config.drops.hour.lifespan;
+            this.initialOpacity = this.config.drops.hour.opacity;
+        } else {
+            this.targetSize = baseSize;
+            this.lifespan = this.config.drops.second.lifespan;
+            this.initialOpacity = this.config.drops.second.opacity;
+        }
+        
+        // Reset domain properties
+        this.color = color;
+        this.type = type;
+        this.initialSize = this.targetSize;
+        this.opacity = this.initialOpacity;
+        this.size = this.targetSize * 0.1; // start birth animation
+        
+        // Reset state
+        this.birthAge = 0;
+        this.hasBeenStamped = false;
+        this.canDrip = (type === 'minute' || type === 'hour');
+        this.dripTimer = 0;
+        this.childDrips = [];
+        
+        // Regenerate splatter
+        this.splatterParticles = this.splatterRenderer.generateSplatter(
+            this.pos.x,
+            this.pos.y,
+            this.initialSize,
+            this.vel
+        );
+    }
 
     // ==================== CUSTOM PHYSICS (Override parent method) ====================
 

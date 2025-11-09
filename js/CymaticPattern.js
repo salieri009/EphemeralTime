@@ -9,8 +9,27 @@
  * - 15 minutes: 3 rings (quarter)
  * - 30 minutes: 6 rings (half)
  * - 45 minutes: 9 rings (three-quarters)
+ * 
+ * @class
+ * @property {p5.Vector} pos - Pattern center position
+ * @property {Object} config - Configuration object
+ * @property {number} minute - Minute value (determines ring count)
+ * @property {number} ringCount - Number of rings (3, 6, or 9)
+ * @property {Array<Object>} rings - Ring data structures
+ * @property {number} maxRadius - Maximum ring radius
+ * @property {number} age - Current age in frames
+ * @property {number} maxAge - Maximum age (180 frames / 3 seconds)
+ * @property {boolean} isDead - Death flag
  */
 class CymaticPattern {
+    /**
+     * Create a new Cymatics pattern
+     * 
+     * @param {number} x - Center X position
+     * @param {number} y - Center Y position
+     * @param {number} minute - Current minute (0-59)
+     * @param {Object} config - Configuration object (default: CONFIG)
+     */
     constructor(x, y, minute, config = CONFIG) {
         this.pos = createVector(x, y);
         this.config = config;
@@ -45,13 +64,21 @@ class CymaticPattern {
         }
     }
     
+    /**
+     * Update cymatics pattern animation and return active rings for fluid interaction
+     * PHILOSOPHY: Sound creates visible waves that physically disturb the fluid medium
+     * 
+     * @returns {Array<Object>} Active rings with position, radius, and strength for fluid interaction
+     */
     update() {
         this.age++;
         
         if (this.age >= this.maxAge) {
             this.isDead = true;
-            return;
+            return [];
         }
+        
+        const activeRings = [];
         
         // Update each ring
         this.rings.forEach(ring => {
@@ -66,10 +93,29 @@ class CymaticPattern {
                 // Fade out alpha
                 const fadeProgress = Math.max(0, 1 - progress);
                 ring.alpha = this.baseAlpha * fadeProgress;
+                
+                // Add to active rings for fluid interaction
+                // Strength decreases as ring expands (inverse square law)
+                if (ring.radius > 0 && fadeProgress > 0) {
+                    activeRings.push({
+                        x: this.pos.x,
+                        y: this.pos.y,
+                        radius: ring.radius,
+                        strength: fadeProgress * 0.8 // Normalized strength for fluid force
+                    });
+                }
             }
         });
+        
+        return activeRings;
     }
     
+    /**
+     * Render pattern to specified layer
+     * Uses ColorManager for time-appropriate colors
+     * 
+     * @param {p5.Graphics} layer - Graphics layer to render to
+     */
     render(layer) {
         layer.push();
         layer.noFill();
@@ -102,6 +148,8 @@ class CymaticPattern {
     
     /**
      * Check if pattern animation is complete
+     * 
+     * @returns {boolean} True if pattern should be removed
      */
     isComplete() {
         return this.isDead;

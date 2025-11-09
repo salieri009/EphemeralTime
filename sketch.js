@@ -72,6 +72,21 @@ function keyPressed() {
 /**
  * Application - Main application class
  * Manages application lifecycle and coordinates all services
+ * 
+ * PHILOSOPHY: "Time flows equally, but traces differ based on our actions"
+ * Zen Mode allows pure observation without numerical time reference
+ * 
+ * @class
+ * @property {Container} container - IoC container with all dependencies
+ * @property {boolean} isPaused - Pause state
+ * @property {number} turbulenceLevel - Current turbulence (0-1)
+ * @property {boolean} isZenMode - Zen mode (hide time display)
+ * @property {boolean} isDebugMode - Debug mode (show performance)
+ * @property {Object} layers - Graphics layers for rendering
+ * @property {Array<InkDrop>} activeDrops - Active ink drops
+ * @property {Array<InkDrip>} activeDrips - Active drips
+ * @property {SunDrop} sunDrop - Sun drop (objective time marker)
+ * @property {Array<CymaticPattern>} cymaticPatterns - Active cymatics patterns
  */
 class Application {
     constructor(container) {
@@ -79,12 +94,16 @@ class Application {
         this.isPaused = false;
         this.turbulenceLevel = 0;
         
+        // UX enhancements
+        this.isZenMode = false;          // z key: hide time display for pure observation
+        this.isDebugMode = false;        // d key: show performance metrics
+        
         // Graphics layers
         this.layers = {
             bg: null,
             trail: null,
             history: null,
-            fx: null,        // ✨ NEW: Effects layer for Cymatics
+            fx: null,        // ✨ Effects layer for Cymatics
             active: null
         };
         
@@ -92,9 +111,19 @@ class Application {
         this.activeDrops = [];
         this.activeDrips = [];
         this.sunDrop = null;
-        this.cymaticPatterns = []; // ✨ NEW: Cymatics patterns
+        this.cymaticPatterns = []; // ✨ Cymatics patterns
+        
+        // Performance monitoring
+        this.frameRateHistory = [];
+        this.frameRateAverage = 60;
     }
 
+    /**
+     * Initialize application
+     * Sets up graphics layers, sun drop, and event listeners
+     * 
+     * @throws {Error} If container or required services are missing
+     */
     setup() {
         // Get services
         const clock = this.container.get('clock');
@@ -144,6 +173,17 @@ class Application {
         });
     }
 
+    /**
+     * Main draw loop
+     * Updates all systems and renders layers
+     * 
+     * PHILOSOPHY: Turbulence modulates all systems simultaneously
+     * - Viscosity: affects fluid flow
+     * - Audio: affects sound characteristics
+     * - Chimes: trigger cymatics patterns
+     * - Sun repulsion: affects drop movement
+     * - Trail accumulation: affects visual persistence
+     */
     draw() {
         background(255);
         
@@ -334,10 +374,20 @@ class Application {
     }
 
     _updateCymaticPatterns() {
+        const fluid = this.container.get('fluid');
+        
         // Update and clean up completed patterns
         for (let i = this.cymaticPatterns.length - 1; i >= 0; i--) {
             const pattern = this.cymaticPatterns[i];
-            pattern.update();
+            
+            // PHILOSOPHY: Cymatics patterns return active rings for fluid interaction
+            // Sound creates visible waves that physically disturb the medium
+            const activeRings = pattern.update();
+            
+            // Apply circular force to fluid for each active ring
+            if (activeRings && activeRings.length > 0) {
+                fluid.applyCircularForce(activeRings);
+            }
             
             if (pattern.isComplete()) {
                 this.cymaticPatterns.splice(i, 1);
@@ -402,19 +452,81 @@ class Application {
     _updateUI(clock) {
         const timeDisplay = select('#time-display');
         if (timeDisplay) {
-            timeDisplay.html(clock.getTimeString());
+            // PHILOSOPHY: Zen Mode - experience time without looking at numbers
+            if (this.isZenMode) {
+                timeDisplay.html('');
+                timeDisplay.style('opacity', '0');
+            } else {
+                timeDisplay.html(clock.getTimeString());
+                timeDisplay.style('opacity', '1');
+            }
+        }
+        
+        // Debug mode: performance overlay
+        if (this.isDebugMode) {
+            this._renderDebugOverlay();
         }
     }
+    
+    /**
+     * Render performance metrics overlay
+     * TECHNICAL SOPHISTICATION: Real-time monitoring for optimization
+     */
+    _renderDebugOverlay() {
+        // Update FPS history
+        this.frameRateHistory.push(frameRate());
+        if (this.frameRateHistory.length > 60) {
+            this.frameRateHistory.shift();
+        }
+        this.frameRateAverage = this.frameRateHistory.reduce((a, b) => a + b, 0) / this.frameRateHistory.length;
+        
+        // Render overlay
+        push();
+        fill(0, 200);
+        noStroke();
+        rect(10, 10, 250, 120, 5);
+        
+        fill(255);
+        textSize(12);
+        textFont('monospace');
+        text(`FPS: ${this.frameRateAverage.toFixed(1)}`, 20, 30);
+        text(`Drops: ${this.activeDrops.length}`, 20, 50);
+        text(`Drips: ${this.activeDrips.length}`, 20, 70);
+        text(`Cymatics: ${this.cymaticPatterns.length}`, 20, 90);
+        text(`Turbulence: ${(this.turbulenceLevel * 100).toFixed(1)}%`, 20, 110);
+        pop();
+    }
 
+    /**
+     * Handle window resize
+     * Recreates canvas and reinitializes background
+     */
     handleResize() {
         resizeCanvas(windowWidth, windowHeight);
         this._initializeBackgroundLayer();
     }
 
+    /**
+     * Handle key press events
+     * 
+     * @param {string} key - Pressed key character
+     * @param {number} keyCode - Key code
+     * 
+     * Controls:
+     * - SPACE: Pause/Resume
+     * - Z: Toggle Zen Mode (hide time)
+     * - D: Toggle Debug Mode (show metrics)
+     */
     handleKeyPress(key, keyCode) {
         if (key === ' ') {
             this.isPaused = !this.isPaused;
-            console.log(this.isPaused ? 'Paused' : 'Resumed');
+            console.log(this.isPaused ? '⏸ Paused' : '▶ Resumed');
+        } else if (key === 'z' || key === 'Z') {
+            this.isZenMode = !this.isZenMode;
+            console.log(this.isZenMode ? '🧘 Zen Mode: ON (time hidden)' : '🕐 Zen Mode: OFF (time shown)');
+        } else if (key === 'd' || key === 'D') {
+            this.isDebugMode = !this.isDebugMode;
+            console.log(this.isDebugMode ? '🔧 Debug Mode: ON' : '🔧 Debug Mode: OFF');
         }
     }
 }

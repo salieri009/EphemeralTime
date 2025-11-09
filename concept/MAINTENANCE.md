@@ -1,81 +1,159 @@
-# Ephemeral Time: Maintenance and Extensibility Guide
+# Project Maintenance & Onboarding Guide (v2.0)
 
-## 1. Project Philosophy & Architecture
-
-This project is designed based on the principles of **Modularity** and **Separation of Concerns**. Each JavaScript file within the `js/` folder has a clearly defined, single responsibility. This architecture makes it easier to understand, modify, and extend specific parts of the code.
-
-The core architecture is **Event-Driven**. `Clock.js` emits events as time progresses, and `sketch.js` listens for these events to perform necessary actions. This approach decouples time logic from rendering logic, maximizing maintainability.
-
-## 2. Maintenance Document Structure
-
-Each document below provides in-depth information about a specific module or system. Before adding new features or modifying existing code, please refer to the relevant document first.
-
--   **[00_Architecture_and_Data_Flow.md](./maintenance/00_Architecture_and_Data_Flow.md)**
-    -   An overview of the entire system's structure, data flow, and rendering pipeline. **This is a must-read before modifying any code.**
-
--   **[01_Clock_and_Events.md](./maintenance/01_Clock_and_Events.md)**
-    -   Explains `Clock.js`, which manages time and emits events.
-
--   **[02_Rendering_and_Actors.md](./maintenance/02_Rendering_and_Actors.md)**
-    -   Covers the behavior and lifecycle of visual elements `InkDrop.js` and `SunDrop.js`.
-
--   **[03_Physics_and_Environment.md](./maintenance/03_Physics_and_Environment.md)**
-    -   Details the physics engine and interactions of `Fluid.js`, which simulates the "Reservoir of Attention."
-
--   **[04_Color_and_Audio.md](./maintenance/04_Color_and_Audio.md)**
-    -   Describes `ColorManager.js` and `Audio.js`, responsible for the project's visual and auditory atmosphere.
-
--   **[05_Configuration.md](./maintenance/05_Configuration.md)**
-    -   Explains the structure and key parameters of `config.js`, which controls all behaviors.
-
-## 3. How to Add a New Feature
-
-When adding a new feature, it is recommended to follow these steps:
-
-1.  **Define the Concept**: First, describe the new feature's concept and user experience (UX) goals in `concept.md`.
-2.  **Design**: Design how the new feature will affect existing modules within the current architecture, or if a new module is needed.
-3.  **Add Configuration**: Add relevant settings to `config.js` to ensure flexibility.
-4.  **Implement**: Write the code according to the design. If necessary, add new classes or modules to the `js/` folder.
-5.  **Document**: Update or create relevant documents in the `concept/maintenance` folder to record the changes.
+**Audience:** All Developers & Future Contributors
+**Purpose:** This document provides a practical guide for extending and maintaining the Ephemeral Time project. It assumes a baseline understanding of the v2.0 architecture.
 
 ---
 
-# Ephemeral Time: 유지보수 및 확장 가이드
+## 1. Core Philosophy: "Contribute, Don't Complicate"
 
-## 1. 프로젝트 철학 및 아키텍처
+This project is built on a foundation of **decoupling** and **clear ownership**. The Inversion of Control (IoC) architecture is not just a pattern; it's a contract. Every service has a single responsibility, and it is ignorant of the implementation details of its collaborators.
 
-이 프로젝트는 **모듈성(Modularity)**과 **관심사 분리(Separation of Concerns)** 원칙에 따라 설계되었습니다. 각 JavaScript 파일(`js/` 폴더 내)은 명확하게 정의된 단일 책임을 가집니다. 이 아키텍처는 코드의 특정 부분을 이해하고, 수정하며, 확장하기 쉽게 만듭니다.
+**Your primary directive as a contributor is to uphold this contract.** Before adding code, ask yourself:
+-   "Which existing service owns this responsibility?"
+-   "If none, does this warrant a new, self-contained service?"
+-   "Am I introducing a new dependency, or can I leverage existing events and services?"
 
-핵심 아키텍처는 **이벤트 기반(Event-Driven)**으로, `Clock.js`가 시간의 흐름에 따라 이벤트를 발생시키면, `sketch.js`가 이를 수신하여 필요한 동작을 수행하는 구조입니다. 이 방식은 시간 로직과 렌더링 로직의 결합도를 낮춰 유지보수성을 극대화합니다.
+Resist the urge to add logic directly into `sketch.js`. The orchestrator's role is to coordinate, not to *do*.
 
-## 2. 유지보수 문서 구조
+---
 
-아래 각 문서는 특정 모듈 또는 시스템에 대한 심층적인 정보를 제공합니다. 새로운 기능을 추가하거나 기존 코드를 수정할 때, 해당 문서를 먼저 참조하십시오.
+## 2. Onboarding: The Developer's Golden Path
 
--   **[00_Architecture_and_Data_Flow.md](./maintenance/00_Architecture_and_Data_Flow.md)**
-    -   시스템 전체의 구조, 데이터 흐름, 렌더링 파이프라인에 대한 개요입니다. **코드를 수정하기 전에 반드시 읽어야 할 문서입니다.**
+To get up to speed, follow this sequence. Do not skip steps.
 
--   **[01_Clock_and_Events.md](./maintenance/01_Clock_and_Events.md)**
-    -   시간을 관리하고 이벤트를 발생시키는 `Clock.js`에 대해 설명합니다.
+1.  **Read `IMPLEMENTATION_SUMMARY.md`**: This is your executive briefing. It explains the *business case* for the v2.0 refactor and connects our technical achievements to the project's conceptual goals.
 
--   **[02_Rendering_and_Actors.md](./maintenance/02_Rendering_and_Actors.md)**
-    -   화면에 그려지는 시각적 요소인 `InkDrop.js`와 `SunDrop.js`의 동작 방식과 생명주기를 다룹니다.
+2.  **Read `concept.md`**: This is the system blueprint. It details the high-level architecture and the role of each core service (`Container`, `ParticleFactory`, `Fluid`, etc.).
 
--   **[03_Physics_and_Environment.md](./maintenance/03_Physics_and_Environment.md)**
-    -   "주의의 저수지"를 시뮬레이션하는 `Fluid.js`의 물리 엔진과 상호작용에 대해 설명합니다.
+3.  **Read `REFACTORING_PROGRESS.md`**: This is the deep-dive engineering log. It provides the "direct quotes" and rationale from the lead engineer on *why* we chose specific patterns like IoC, Factories, and Object Pooling. **This is mandatory reading to understand our engineering culture.**
 
--   **[04_Color_and_Audio.md](./maintenance/04_Color_and_Audio.md)**
-    -   프로젝트의 시각적, 청각적 분위기를 담당하는 `ColorManager.js`와 `Audio.js`를 다룹니다.
+4.  **Browse the Code (`/js` directory)**: With the architectural context from the documents, navigate the service modules. Pay special attention to the constructor of each service to see dependency injection in action and the `// PHILOSOPHY:` comments, which bridge the gap between code and concept.
 
--   **[05_Configuration.md](./maintenance/05_Configuration.md)**
-    -   모든 동작을 제어하는 `config.js`의 구조와 주요 파라미터에 대해 설명합니다.
+---
 
-## 3. 새로운 기능 추가하기
+## 3. How to Add a New Feature: A Practical Walk-through
 
-새로운 기능을 추가할 때는 다음 단계를 따르는 것을 권장합니다.
+The architecture is designed for predictable, low-risk extension. Let's walk through the most common task: adding a new particle type.
 
-1.  **개념 정의**: `concept.md`에 새로운 기능의 개념과 사용자 경험(UX) 목표를 먼저 기술합니다.
-2.  **설계**: 기존 아키텍처 내에서 새로운 기능이 어떤 모듈에 영향을 미치는지, 혹은 새로운 모듈이 필요한지 설계합니다.
-3.  **설정 추가**: `config.js`에 새로운 기능과 관련된 설정 값을 추가하여 유연성을 확보합니다.
-4.  **구현**: 설계에 따라 코드를 작성합니다. 필요하다면 새로운 클래스나 모듈을 `js/` 폴더에 추가합니다.
-5.  **문서화**: `concept/maintenance` 폴더에 관련 문서를 업데이트하거나 새로 작성하여 변경 사항을 기록합니다.
+**Scenario:** We want to add a `Sparkle` particle that appears on a new `quarterHour` event.
+
+### Step 1: Define the Actor (`js/Sparkle.js`)
+Create the class. It **must** extend the `Particle` base class to inherit core lifecycle and physics logic.
+
+```javascript
+// In: js/Sparkle.js
+import { Particle } from './core/Particle.js';
+
+export class Sparkle extends Particle {
+    constructor(id, pool, config, fluid, colorManager) {
+        // The base constructor handles ID, pool reference, and lifespan.
+        super(id, pool, config.lifespan);
+
+        // Store injected dependencies.
+        this.config = config;
+        this.fluid = fluid;
+        this.colorManager = colorManager;
+    }
+
+    /**
+     * The re-initialization hook for the Object Pool.
+     * This is called by the factory instead of the constructor.
+     */
+    onReset(x, y, angle) {
+        super.onReset(x, y, angle); // Handles position, velocity, etc.
+        
+        // Reset sparkle-specific properties here.
+        this.size = Math.random() * this.config.maxSize;
+        this.brightness = 1.0;
+    }
+
+    update() {
+        // Implement unique behavior.
+        this.brightness -= 0.01;
+        
+        // Always call the parent update() to apply fluid forces and handle lifespan.
+        super.update();
+    }
+
+    render(ctx) {
+        if (this.isDead()) return;
+        // Implement unique rendering logic.
+        ctx.fillStyle = `rgba(255, 255, 200, ${this.brightness})`;
+        ctx.beginPath();
+        ctx.arc(this.pos.x, this.pos.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+```
+
+### Step 2: Update the Factory (`js/core/ParticleFactory.js`)
+The factory is the only place where particles are created.
+
+```javascript
+// In: js/core/ParticleFactory.js
+// ...
+import { Sparkle } from '../Sparkle.js'; // 1. Import the new class.
+
+export class ParticleFactory {
+    constructor(container) {
+        // ... existing dependencies
+        
+        // 2. Create a dedicated Object Pool for the new particle type.
+        this.sparklePool = new ObjectPool(
+            (id, pool) => new Sparkle(id, pool, this.config.particles.sparkle, this.fluid, this.colorManager),
+            this.config.pools.sparkle
+        );
+    }
+
+    // 3. Create a public method to produce the new particle.
+    createSparkle(x, y, angle = 0) {
+        const sparkle = this.sparklePool.get();
+        if (sparkle) {
+            sparkle.onReset(x, y, angle);
+            this.activeParticles.add(sparkle);
+            return sparkle;
+        }
+        return null; // Pool might be exhausted.
+    }
+    // ...
+}
+```
+
+### Step 3: Update Configuration (`config.js`)
+Add a configuration block for the new particle. This allows for tuning without code changes.
+
+```javascript
+// In: config.js
+export const config = {
+    // ...
+    particles: {
+        // ...
+        sparkle: {
+            lifespan: 100,
+            maxSize: 3,
+        }
+    },
+    pools: {
+        // ...
+        sparkle: 50, // Maximum number of concurrent sparkles.
+    }
+};
+```
+
+### Step 4: Orchestrate the Trigger (`sketch.js`)
+Finally, tell the system *when* to create the new particle by listening to an event.
+
+```javascript
+// In: sketch.js
+// In the Application class constructor or an init method...
+
+// Assuming a 'quarterHour' event is emitted from Clock.js
+this.clock.on('quarterHour', (data) => {
+    const factory = this.container.get('particleFactory');
+    const { x, y } = this.calculateChimePosition(data.minute);
+    factory.createSparkle(x, y);
+});
+```
+
+This process isolates changes, leverages existing patterns, and ensures the system remains stable and predictable. Welcome to the team.

@@ -1,11 +1,16 @@
 /**
  * ColorManager.js - Realistic Fountain Pen Ink Color System
  * 
- * Design Philosophy:
+ * PHILOSOPHY: "Time as Ink Chemistry"
+ * The passage of time is visualized through realistic fountain pen ink behavior.
+ * Morning starts with cool blues (clarity, focus), evening ends with warm earth tones (reflection).
+ * Turbulence creates "muddy" mixed ink - when attention scatters, colors lose their purity.
+ * 
+ * Design Principles:
  * - Realistic fountain pen ink chemistry (Diamine, Pilot, Sailor)
- * - Subtle cool→warm gradient for time readability
+ * - Subtle cool→warm gradient for time readability without numbers
  * - Paper absorption simulation (desaturation + darkening)
- * - Turbulence creates "muddy" mixed ink effect
+ * - Turbulence = mixed ink effect (distracted mind muddies perception)
  */
 class ColorManager {
     constructor(config = CONFIG) {
@@ -83,6 +88,8 @@ class ColorManager {
         let b = blue(c);
 
         // Effect 1: Turbulence creates "muddy" mixed ink
+        // PHILOSOPHY: Scattered attention muddies perception
+        // When distracted, colors lose their purity and blend chaotically
         if (this.currentTurbulence > 0) {
             const turbConfig = this.config.colors.turbulence;
             

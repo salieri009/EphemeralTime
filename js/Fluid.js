@@ -1,7 +1,27 @@
 /**
  * Fluid.js - Perlin Noise based fluid simulation
+ * 
+ * PHILOSOPHY: "Attention Reservoir"
+ * - Calm state: high viscosity, clear traces (mindful)
+ * - Distracted state: low viscosity, chaotic traces (scattered attention)
+ * 
+ * @class
+ * @property {number} resolution - Grid cell size in pixels
+ * @property {number} cols - Grid columns
+ * @property {number} rows - Grid rows
+ * @property {Array<Array<p5.Vector>>} field - 2D vector field
+ * @property {number} turbulence - Current turbulence (0-1)
+ * @property {number} targetTurbulence - Target turbulence for smooth interpolation
+ * @property {number} currentViscosity - Current viscosity value
+ * @property {SunDrop} sunDrop - Reference to sun drop for repulsion
  */
 class Fluid {
+    /**
+     * Create fluid simulation
+     * 
+     * @param {number} resolution - Grid cell size (default: 20)
+     * @param {Object} config - Configuration object
+     */
     constructor(resolution = 20, config) {
         this.resolution = resolution;
         this.cols = ceil(width / resolution);
@@ -17,6 +37,8 @@ class Fluid {
         
         // Turbulence state (attention reservoir)
         this.turbulence = 0;
+        this.targetTurbulence = 0; // ✨ NEW: Target for smooth interpolation
+        this.turbulenceInertia = 0.05; // ✨ NEW: Smoothing factor (lower = smoother)
         
         // Sun drop reference (for repulsion)
         this.sunDrop = null;
@@ -131,8 +153,9 @@ class Fluid {
     }
 
     /**
-     * Get current viscosity value
-     * @returns {number} Current viscosity multiplier
+     * Get viscosity value for drop physics
+     * 
+     * @returns {number} Current viscosity multiplier (0.65-0.95)
      */
     getViscosity() {
         return this.currentViscosity;
@@ -140,6 +163,9 @@ class Fluid {
 
     /**
      * Add turbulence to the system based on mouse velocity.
+     * PHILOSOPHY: Attention reservoir fills gradually, empties gradually
+     * Natural inertia creates realistic "attention momentum"
+     * 
      * @param {number} mouseVelocity - The velocity of the mouse movement.
      */
     addTurbulence(mouseVelocity) {
@@ -151,8 +177,10 @@ class Fluid {
                 0,
                 0.1
             );
-            this.turbulence = constrain(
-                this.turbulence + turbulenceIncrease,
+            
+            // Increase TARGET turbulence (not immediate)
+            this.targetTurbulence = constrain(
+                this.targetTurbulence + turbulenceIncrease,
                 0,
                 this.config.fluid.turbulence.maxValue
             );
@@ -160,10 +188,20 @@ class Fluid {
     }
 
     /**
-     * Update the turbulence level (decay over time).
+     * Update the turbulence level (smooth interpolation + decay over time).
+     * PHILOSOPHY: Smooth transitions create natural "attention momentum"
      */
     updateTurbulence() {
-        this.turbulence *= this.config.fluid.turbulence.decay;
+        // Smooth interpolation toward target (inertia)
+        this.turbulence = lerp(this.turbulence, this.targetTurbulence, this.turbulenceInertia);
+        
+        // Natural decay of target (attention fades when not stimulated)
+        this.targetTurbulence *= this.config.fluid.turbulence.decay;
+        
+        // Snap to zero when very small
+        if (this.targetTurbulence < 0.001) {
+            this.targetTurbulence = 0;
+        }
         if (this.turbulence < 0.001) {
             this.turbulence = 0;
         }
@@ -174,12 +212,62 @@ class Fluid {
      */
     resetTurbulence() {
         this.turbulence = 0;
+        this.targetTurbulence = 0; // ✨ Reset target as well
         console.log('🌊 Fluid turbulence reset to calm state');
+    }
+    
+    /**
+     * Apply circular force from Cymatics patterns to fluid field
+     * PHILOSOPHY: Sound waves physically disturb the medium, creating visible flow patterns
+     * 
+     * @param {Array<Object>} activeRings - Array of active cymatics rings with x, y, radius, strength
+     */
+    applyCircularForce(activeRings) {
+        if (!activeRings || activeRings.length === 0) return;
+        
+        activeRings.forEach(ring => {
+            const centerGridX = floor(ring.x / this.resolution);
+            const centerGridY = floor(ring.y / this.resolution);
+            const ringGridRadius = ring.radius / this.resolution;
+            const forceStrength = ring.strength * 2.5; // Amplify cymatics force
+            
+            // Create expanding circular wave force
+            const searchRadius = ceil(ringGridRadius + 2);
+            
+            for (let dy = -searchRadius; dy <= searchRadius; dy++) {
+                for (let dx = -searchRadius; dx <= searchRadius; dx++) {
+                    const gx = centerGridX + dx;
+                    const gy = centerGridY + dy;
+                    
+                    if (gx >= 0 && gx < this.cols && gy >= 0 && gy < this.rows) {
+                        const gridDist = sqrt(dx * dx + dy * dy);
+                        const ringDist = abs(gridDist - ringGridRadius);
+                        
+                        // Force concentrated at the ring edge (wave front)
+                        if (ringDist < 2) {
+                            const angle = atan2(dy, dx);
+                            const forceMagnitude = forceStrength * (1 - ringDist / 2);
+                            
+                            // Tangential force (creates circular flow)
+                            const tangentAngle = angle + HALF_PI;
+                            const forceVec = createVector(
+                                cos(tangentAngle) * forceMagnitude,
+                                sin(tangentAngle) * forceMagnitude
+                            );
+                            
+                            this.field[gy][gx].add(forceVec);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**
-     * Get the current turbulence level (0-1).
-     * @returns {number} Current turbulence level.
+     * Get current turbulence level
+     * Used by all systems to modulate behavior
+     * 
+     * @returns {number} Current turbulence (0-1)
      */
     getTurbulence() {
         return this.turbulence;

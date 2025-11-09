@@ -1,7 +1,15 @@
 ﻿/**
  * Clock.js - Time tracking and event emission
- * Emits events for seconds, minutes, hours, and quarter-hour chimes
- * Supports simulation mode: browser start time = 00:00:00
+ * 
+ * PHILOSOPHY: "Objective Time vs Subjective Experience"
+ * The clock represents objective, universal time - it flows equally for everyone.
+ * Events (second/minute/hour/chime) are discrete temporal signposts.
+ * Yet how we experience these moments (through ink traces) varies based on attention.
+ * 
+ * Chimes (15/30/45 min) are stronger temporal anchors - cultural time markers
+ * that help us orient without looking at numbers.
+ * 
+ * Simulation mode starts at 00:00:00 for canvas demonstration purposes.
  */
 class Clock {
     constructor(config = CONFIG) {

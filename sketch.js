@@ -394,11 +394,9 @@ class Application {
             // Sound creates visible waves that physically disturb the medium
             const activeRings = pattern.update();
             
-            // Apply circular force to fluid for each active ring
+            // Apply circular force to fluid - pass the entire array of active rings
             if (activeRings && activeRings.length > 0) {
-                activeRings.forEach(ring => {
-                    fluid.applyCircularForce(ring.x, ring.y, ring.radius, ring.strength);
-                });
+                fluid.applyCircularForce(activeRings);
             }
             
             if (pattern.isComplete()) {

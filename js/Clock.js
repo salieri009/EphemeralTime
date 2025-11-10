@@ -84,6 +84,17 @@ class Clock {
         this.lastHour = newHour;
     }
 
+
+    setTime(hour, minute, second) {
+        const totalSeconds = hour * 3600 + minute * 60 + second;
+        this.startTime = Date.now() - totalSeconds * 1000;
+        
+        // Reset last tracked time to force event emission on next update
+        this.lastSecond = -1;
+        this.lastMinute = -1;
+        this.lastHour = -1;
+}
+
     getCurrentMinute() {
         const elapsedMs = Date.now() - this.startTime;
         const totalSeconds = Math.floor(elapsedMs / 1000);

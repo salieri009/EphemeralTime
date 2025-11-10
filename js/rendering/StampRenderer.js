@@ -20,8 +20,9 @@ class StampRenderer {
 
     /**
      * Render Oriental brush stamp on history layer
+     * @param {number} fadeInAlpha - Optional fade-in multiplier (0-1) for gradual appearance
      */
-    renderStamp(layer, x, y, size, color, angle = 0) {
+    renderStamp(layer, x, y, size, color, angle = 0, fadeInAlpha = 1.0) {
         layer.push();
         layer.translate(x, y);
         layer.rotate(angle);
@@ -39,14 +40,14 @@ class StampRenderer {
                 this.config.maxOpacity,
                 this.config.minOpacity,
                 t
-            );
+            ) * fadeInAlpha; // Apply fade-in multiplier
 
             layer.fill(red(color), green(color), blue(color), opacity);
             layer.ellipse(0, 0, radius, radius);
         }
 
         // Radial fiber texture
-        this._drawFibers(layer, size, color);
+        this._drawFibers(layer, size, color, fadeInAlpha);
 
         layer.pop();
     }
@@ -54,7 +55,7 @@ class StampRenderer {
     /**
      * Private: Draw radial fiber texture
      */
-    _drawFibers(layer, size, color) {
+    _drawFibers(layer, size, color, fadeInAlpha = 1.0) {
         layer.push();
         layer.strokeWeight(0.5);
 
@@ -62,7 +63,7 @@ class StampRenderer {
             const angle = random(TWO_PI);
             const length = random(size * this.config.fiberLength);
             const distance = random(size * 0.5);
-            const opacity = random(30, 80);
+            const opacity = random(30, 80) * fadeInAlpha; // Apply fade-in multiplier
 
             layer.stroke(red(color), green(color), blue(color), opacity);
 

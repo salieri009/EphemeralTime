@@ -50,6 +50,7 @@ class InkDrip extends Particle {
         this.fadeRate = dripConfig.fadeRate || 0.03;
         this.parentDied = false;
         this.hasBeenStamped = false;
+        this.stampProgress = 0; // Gradual stamp fade-in (0-1)
     }
 
     onBeforeUpdate() {
@@ -65,8 +66,16 @@ class InkDrip extends Particle {
         }
         this.radius -= fadeRate;
         
+        // PHILOSOPHY: Start stamp fade-in when drip is near death
+        const fadeProgress = 1 - (this.radius / this.startRadius);
+        if (fadeProgress >= 0.7 && this.stampProgress < 1.0) {
+            const stampFadeProgress = (fadeProgress - 0.7) / 0.3;
+            this.stampProgress = Math.min(1.0, stampFadeProgress);
+        }
+        
         if (this.radius <= 0 || this.pos.y > height + 50) {
             this.isDead = true;
+            this.stampProgress = 1.0; // Fully visible when dead
         }
     }
 
@@ -113,12 +122,13 @@ class InkDrip extends Particle {
     }
 
     stampToHistory(historyLayer) {
-        if (this.hasBeenStamped || this.radius <= 0) return;
+        // Only stamp if we have some progress
+        if (this.stampProgress <= 0 || this.radius <= 0) return;
         
         try {
             historyLayer.push();
             historyLayer.noStroke();
-            const residueAlpha = 30;
+            const residueAlpha = 30 * this.stampProgress; // Apply fade-in
             historyLayer.fill(
                 red(this.color) * 0.7,
                 green(this.color) * 0.7,
@@ -127,14 +137,18 @@ class InkDrip extends Particle {
             );
             historyLayer.ellipse(this.pos.x, this.pos.y, this.radius * 1.5, this.radius * 1.5);
             historyLayer.pop();
-            this.hasBeenStamped = true;
+            
+            // Mark as stamped only when fully faded in
+            if (this.stampProgress >= 1.0) {
+                this.hasBeenStamped = true;
+            }
         } catch (error) {
             console.error('InkDrip: stampToHistory error', error);
         }
     }
 
     shouldStamp() {
-        return this.isDead && !this.hasBeenStamped && this.radius > 0.5;
+        return this.stampProgress > 0 && !this.hasBeenStamped && this.radius > 0.5;
     }
 
     notifyParentDied() {

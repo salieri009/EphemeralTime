@@ -56,6 +56,7 @@ class InkDrop extends Particle {
 
         // Stamp state
         this.hasBeenStamped = false;
+        this.stampProgress = 0; // 0-1, gradual stamp fade-in
 
         // Drip generation state
         this.canDrip = (type === 'minute' || type === 'hour');
@@ -104,7 +105,7 @@ class InkDrop extends Particle {
 
     /**
      * Hook: Execute after physics update
-     * Handles aging, fading, size reduction
+     * Handles aging, fading, size reduction, and gradual stamp fade-in
      */
     onAfterUpdate() {
         // Opacity fade: linear interpolation from initial to residue
@@ -114,6 +115,12 @@ class InkDrop extends Particle {
             // Fully aged: hold at residue opacity
             this.opacity = this.config.performance.stainFade.residueOpacity;
             this.size = this.targetSize * 0.7;
+            
+            // PHILOSOPHY: Stain gradually appears (natural ink absorption)
+            // Start fading in the stamp when particle reaches 80% of its life
+            if (this.stampProgress < 1.0) {
+                this.stampProgress = Math.min(1.0, this.stampProgress + 0.02); // Gradual fade-in
+            }
         } else {
             // Fading
             const residueOpacity = this.config.performance.stainFade.residueOpacity;
@@ -122,6 +129,13 @@ class InkDrop extends Particle {
             // Size reduction (only after birth)
             if (this.birthAge > this.birthDuration) {
                 this.size = this.targetSize * (1 - fadeProgress * 0.5);
+            }
+            
+            // Start gradual stamp fade-in at 80% of lifespan
+            if (fadeProgress >= 0.8 && this.stampProgress < 1.0) {
+                // Map 0.8-1.0 fadeProgress to 0-1 stampProgress
+                const stampFadeProgress = (fadeProgress - 0.8) / 0.2;
+                this.stampProgress = Math.min(1.0, stampFadeProgress);
             }
         }
     }
@@ -284,16 +298,21 @@ class InkDrop extends Particle {
 
     /**
      * Stamp permanent residue to history layer (Oriental brush effect)
+     * PHILOSOPHY: Stain fades in gradually like ink absorbing into paper
      */
     stampToHistory(historyLayer) {
-        if (this.hasBeenStamped) return;
+        // Only stamp if we have some progress (started fading in)
+        if (this.stampProgress <= 0) return;
 
         // Get residue color
         const residueColor = this._calculateResidueColor();
+        
+        // Apply fade-in alpha multiplier
+        const fadeInAlpha = this.stampProgress;
 
-        // Render splatter residue
+        // Render splatter residue with fade-in
         for (let particle of this.splatterParticles) {
-            const particleAlpha = particle.alpha * 0.4;
+            const particleAlpha = particle.alpha * 0.4 * fadeInAlpha;
             historyLayer.fill(residueColor.r, residueColor.g, residueColor.b, particleAlpha);
             historyLayer.ellipse(
                 this.pos.x + particle.offset.x,
@@ -302,26 +321,31 @@ class InkDrop extends Particle {
             );
         }
 
-        // Render main stamp using renderer (Oriental brush effect)
+        // Render main stamp using renderer (Oriental brush effect) with fade-in
         this.stampRenderer.renderStamp(
             historyLayer,
             this.pos.x,
             this.pos.y,
             this.targetSize * 0.5,
             color(residueColor.r, residueColor.g, residueColor.b),
-            0
+            0,
+            fadeInAlpha  // Pass fade-in alpha to renderer
         );
-
-        this.hasBeenStamped = true;
+        
+        // Mark as stamped only when fully faded in
+        if (this.stampProgress >= 1.0) {
+            this.hasBeenStamped = true;
+        }
     }
 
     // ==================== STATE QUERIES ====================
 
     /**
      * Check if drop should be stamped to history
+     * Start stamping when fade-in begins (80% of lifespan)
      */
     shouldStamp() {
-        return this.age >= this.lifespan && !this.hasBeenStamped;
+        return this.stampProgress > 0 && !this.hasBeenStamped;
     }
 
     // ==================== PRIVATE METHODS ====================

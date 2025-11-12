@@ -1,3 +1,5 @@
+<div align="center">
+
 # Ephemeral Time: The Reservoir of Attention
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000) ![Version](https://img.shields.io/badge/Version-0.2.0-blue) ![GitHub stars](https://img.shields.io/github/stars/salieri009/EphemeralTime) ![GitHub issues](https://img.shields.io/github/issues/salieri009/EphemeralTime) ![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Here-brightgreen)
@@ -8,9 +10,17 @@
 
 [한국어](README.ko.md) | [English](README.en.md) | [日本語](README.ja.md)
 
+</div>
+
+---
+
+<div align="center">
+
 An interactive art project that explores the subjective nature of time through a fluid, generative visualization. Time is represented as a **"Reservoir of Attention"** where your interaction directly shapes how time flows and appears.
 
 **New in v0.2:** The Sun Drop (hourly marker), Chime Drops (quarter-hour markers), and the Turbulence System (attention feedback).
+
+</div>
 
 ---
 
@@ -23,7 +33,11 @@ This project visualizes time not as a mechanical constant, but as a **psychologi
 - **Calm State (Focused)**: When you don't interact, the fluid flows smoothly, colors are rich and saturated, and ink drops leave deep, lasting marks. Time feels slow and meaningful.
 - **Turbulent State (Distracted)**: When you drag your mouse rapidly, you inject chaos into the system. The fluid becomes turbulent, colors desaturate, and drops fade quickly. Time feels fast and forgettable.
 
+<div align="center">
+
 This creates a feedback loop: **your interaction changes the visualization, and the visualization reflects your attention**.
+
+</div>
 
 ---
 
@@ -34,30 +48,34 @@ This creates a feedback loop: **your interaction changes the visualization, and 
 │
 ├── index.html           # Project entry point
 ├── style.css            # Canvas and overall layout styles
+├── sketch.js            # p5.js main application (setup(), draw(), Application class)
 ├── .gitignore           # Git ignore file settings
 ├── README.md            # Project documentation
 │
 ├── js/
-│   ├── sketch.js        # p5.js main logic (setup(), draw())
+│   ├── config.js        # Central configuration for all parameters
+│   ├── sketch.js        # Legacy p5.js sketch (alternative implementation)
+│   │
 │   ├── Clock.js         # Time tracking and event emission (seconds, minutes, hours, chimes)
-│   ├── InkDrop.js       # Individual ink drop class
-│   ├── InkDrip.js       # Dripping ink trails from larger drops
-│   ├── SunDrop.js       # Special hourly marker that drifts across the screen
-│   ├── Fluid.js         # Perlin Noise fluid simulation with turbulence system
 │   ├── ColorManager.js  # Time-based color gradients with turbulence modulation
 │   ├── Audio.js         # Generative audio synthesis (drop sounds, ambient, chimes)
+│   │
+│   ├── Fluid.js         # Perlin Noise fluid simulation with turbulence system
 │   ├── CymaticPattern.js # Visual representation of sound waves (chime ripples)
-│   ├── config.js        # Central configuration for all parameters
+│   │
+│   ├── InkDrop.js       # Individual ink drop class (extends Particle)
+│   ├── InkDrip.js       # Dripping ink trails from larger drops (extends Particle)
+│   ├── SunDrop.js       # Special hourly marker that drifts across the screen
 │   │
 │   ├── core/            # Core architecture components
 │   │   ├── Container.js      # Dependency Injection Container (IoC)
 │   │   ├── ObjectPool.js     # Object pooling for performance optimization
-│   │   ├── Particle.js      # Base class for all movable entities
+│   │   ├── Particle.js       # Base class for all movable entities
 │   │   ├── ParticleFactory.js # Factory for creating particles with DI
 │   │   └── Renderable.js     # Interface for drawable objects
 │   │
 │   └── rendering/       # Rendering strategy implementations
-│       ├── StampRenderer.js  # Oriental brush stamp rendering
+│       ├── StampRenderer.js    # Oriental brush stamp rendering
 │       └── SplatterRenderer.js # Splatter particle rendering
 │
 ├── lib/                 # External libraries
@@ -178,7 +196,11 @@ This creates a feedback loop: **your interaction changes the visualization, and 
 - **Drag Rapidly**: Inject turbulence. Watch colors desaturate, drops fade faster, and the ambient sound become more complex.
 - **Stop**: Observe how the turbulence slowly decays, and the system returns to a calm state.
 
+<div align="center">
+
 **The visualization becomes a mirror of your own attentional state.**
+
+</div>
 
 ---
 

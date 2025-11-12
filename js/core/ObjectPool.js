@@ -54,7 +54,8 @@ class ObjectPool {
             } else {
                 // Reset existing particle (implement reset() in Particle classes)
                 if (typeof particle.reset === 'function') {
-                    particle.reset(x, y, color, type);
+                    // CRITICAL: Pass params as object, not separate arguments
+                    particle.reset(x, y, { color, type });
                 } else {
                     // Fallback: create new if reset not implemented
                     particle = this._createNewParticle(x, y, color, type);
@@ -86,15 +87,19 @@ class ObjectPool {
         const factory = this.factoryGetter();
         this.totalCreated++;
         
+        // CRITICAL: Pass bypassPool=true to prevent circular calls
+        // Pool → Factory → Pool would cause stack overflow
+        const bypassPool = true;
+        
         switch (type) {
             case 'second':
-                return factory.createSecondDrop(x, y, color);
+                return factory.createSecondDrop(x, y, color, bypassPool);
             case 'minute':
-                return factory.createMinuteDrop(x, y, color);
+                return factory.createMinuteDrop(x, y, color, bypassPool);
             case 'hour':
-                return factory.createHourDrop(x, y, color);
+                return factory.createHourDrop(x, y, color, bypassPool);
             case 'chime':
-                return factory.createChimeDrop(x, y, color);
+                return factory.createChimeDrop(x, y, color, bypassPool);
             default:
                 throw new Error(`ObjectPool: unknown type '${type}'`);
         }

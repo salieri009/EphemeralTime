@@ -244,6 +244,7 @@ class InkDrop extends Particle {
 
     /**
      * Required by Particle: Render this drop on active layer
+     * ✨ ENHANCED: Visual feedback based on turbulence
      */
     display(layer) {
         layer.push();
@@ -251,21 +252,38 @@ class InkDrop extends Particle {
 
         const birthProgress = Math.min(1, this.birthAge / this.birthDuration);
         const fadeProgress = Math.min(1, this.age / this.lifespan);
+        
+        // ✨ Get current turbulence for visual feedback
+        const turbulence = this.fluid ? this.fluid.getTurbulence() : 0;
+        
+        // ✨ TURBULENCE EFFECT 1: Opacity reduction (fast = more transparent)
+        // Calm (0): 100% opacity, Turbulent (1): 40% opacity
+        const turbulenceOpacityFactor = lerp(1.0, 0.4, turbulence);
+        
+        // ✨ TURBULENCE EFFECT 2: Size reduction (fast = smaller, more scattered)
+        // Calm (0): 100% size, Turbulent (1): 70% size
+        const turbulenceSizeFactor = lerp(1.0, 0.7, turbulence);
 
         // Render splatter using renderer
+        // ✨ Splatter MORE visible when turbulent (scattered ink)
         const splatterOpacity = map(fadeProgress, 0, 1, 1, 0.3);
+        const turbulentSplatterBoost = lerp(1.0, 1.5, turbulence); // 50% boost when turbulent
         this.splatterRenderer.renderSplatter(
             layer,
             this.pos.x,
             this.pos.y,
             this.splatterParticles,
             this.color,
-            this.opacity * splatterOpacity * birthProgress
+            this.opacity * splatterOpacity * birthProgress * turbulenceOpacityFactor * turbulentSplatterBoost
         );
 
         // Render main drop
-        layer.fill(red(this.color), green(this.color), blue(this.color), this.opacity);
-        layer.ellipse(this.pos.x, this.pos.y, Math.max(this.size, 2));
+        // ✨ Apply turbulence effects: more transparent, smaller when fast
+        const finalOpacity = this.opacity * turbulenceOpacityFactor;
+        const finalSize = Math.max(this.size * turbulenceSizeFactor, 2);
+        
+        layer.fill(red(this.color), green(this.color), blue(this.color), finalOpacity);
+        layer.ellipse(this.pos.x, this.pos.y, finalSize);
 
         layer.pop();
     }
@@ -275,6 +293,7 @@ class InkDrop extends Particle {
     /**
      * Render motion trail to trail layer
      * PHILOSOPHY: More turbulence = more visible traces (busier life leaves more marks)
+     * ✨ ENHANCED: Stronger visual feedback - turbulent = much more trails
      */
     stampTrail(trailLayer, turbulenceLevel = 0) {
         const trailConfig = this.config.drops.trail;
@@ -282,7 +301,8 @@ class InkDrop extends Particle {
 
         // INVERTED LOGIC: High turbulence = MORE trails (not less)
         // Distraction creates more activity = more visible traces
-        const turbulenceFactor = 1 + (turbulenceLevel * 0.5); // up to 1.5x alpha
+        // ✨ ENHANCED: Stronger trail boost (0.5 → 1.2, up to 2.2x alpha)
+        const turbulenceFactor = 1 + (turbulenceLevel * 1.2); // up to 2.2x alpha
         const trailAlpha = trailConfig.baseAlpha * turbulenceFactor;
 
         // Use renderer
@@ -310,27 +330,34 @@ class InkDrop extends Particle {
         // Apply fade-in alpha multiplier
         const fadeInAlpha = this.stampProgress;
 
-        // Render splatter residue with fade-in
+        // ✨ Set blend mode for overlapping transparency
+        historyLayer.push();
+        historyLayer.blendMode(MULTIPLY);
+        
+        // Render splatter residue with fade-in (✨ ENHANCED: stronger spread)
         for (let particle of this.splatterParticles) {
-            const particleAlpha = particle.alpha * 0.4 * fadeInAlpha;
+            const particleAlpha = particle.alpha * 0.7 * fadeInAlpha; // 0.4 → 0.7 (stronger)
             historyLayer.fill(residueColor.r, residueColor.g, residueColor.b, particleAlpha);
             historyLayer.ellipse(
                 this.pos.x + particle.offset.x,
                 this.pos.y + particle.offset.y,
-                particle.size * 0.6
+                particle.size * 1.2  // 0.6 → 1.2 (larger spread)
             );
         }
 
         // Render main stamp using renderer (Oriental brush effect) with fade-in
+        // ✨ ENHANCED: larger stamp size for stronger bleed effect
         this.stampRenderer.renderStamp(
             historyLayer,
             this.pos.x,
             this.pos.y,
-            this.targetSize * 0.5,
+            this.targetSize * 0.8,  // 0.5 → 0.8 (stronger stamp)
             color(residueColor.r, residueColor.g, residueColor.b),
             0,
             fadeInAlpha  // Pass fade-in alpha to renderer
         );
+        
+        historyLayer.pop();
         
         // Mark as stamped only when fully faded in
         if (this.stampProgress >= 1.0) {

@@ -99,11 +99,12 @@ class ColorManager {
         // Effect 1: Turbulence creates "muddy" mixed ink
         // PHILOSOPHY: Scattered attention muddies perception
         // When distracted, colors lose their purity and blend chaotically
+        // ✨ ENHANCED: Stronger visual feedback for turbulence
         if (this.currentTurbulence > 0) {
             const turbConfig = this.config.colors.turbulence;
             
-            // Desaturate (lose color intensity)
-            const desatAmount = this.currentTurbulence * turbConfig.desaturationAmount;
+            // ✨ STRONGER desaturation (0.6 → 0.85 max)
+            const desatAmount = this.currentTurbulence * 0.85;
             const gray = (r + g + b) / 3;
             r = lerp(r, gray, desatAmount);
             g = lerp(g, gray, desatAmount);

@@ -127,15 +127,17 @@ class InkDrip extends Particle {
         
         try {
             historyLayer.push();
+            historyLayer.blendMode(MULTIPLY); // ✨ Blend mode for overlapping
             historyLayer.noStroke();
-            const residueAlpha = 30 * this.stampProgress; // Apply fade-in
+            const residueAlpha = 40 * this.stampProgress; // Apply fade-in (30 → 40, stronger)
             historyLayer.fill(
                 red(this.color) * 0.7,
                 green(this.color) * 0.7,
                 blue(this.color) * 0.7,
                 residueAlpha
             );
-            historyLayer.ellipse(this.pos.x, this.pos.y, this.radius * 1.5, this.radius * 1.5);
+            // ✨ Larger stamp size (1.5 → 2.0)
+            historyLayer.ellipse(this.pos.x, this.pos.y, this.radius * 2.0, this.radius * 2.0);
             historyLayer.pop();
             
             // Mark as stamped only when fully faded in

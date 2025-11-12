@@ -8,12 +8,12 @@ class StampRenderer {
     constructor(config = {}) {
         this.config = {
             layers: config.layers || 8,
-            maxRadius: config.maxRadius || 1.2,
-            minRadius: config.minRadius || 0.7,
-            maxOpacity: config.maxOpacity || 120,
-            minOpacity: config.minOpacity || 70,
-            fibers: config.fibers || 40,
-            fiberLength: config.fiberLength || 0.3,
+            maxRadius: config.maxRadius || 1.4,  // 1.2 → 1.4 (wider spread)
+            minRadius: config.minRadius || 0.8,  // 0.7 → 0.8
+            maxOpacity: config.maxOpacity || 150, // 120 → 150 (stronger)
+            minOpacity: config.minOpacity || 90,  // 70 → 90 (stronger)
+            fibers: config.fibers || 50,          // 40 → 50 (more texture)
+            fiberLength: config.fiberLength || 0.4, // 0.3 → 0.4 (longer fibers)
             ...config
         };
     }

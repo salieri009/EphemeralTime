@@ -75,14 +75,15 @@ class ParticleFactory {
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
+     * @param {boolean} [bypassPool=false] - Internal flag to prevent circular calls
      * @returns {InkDrop}
      */
-    createSecondDrop(x, y, color) {
+    createSecondDrop(x, y, color, bypassPool = false) {
         this._validatePosition(x, y);
         this._validateColor(color);
         
-        // ✨ Use pool if available
-        if (this.usePool) {
+        // ✨ Use pool if available (but not if called from pool itself)
+        if (this.usePool && !bypassPool) {
             return this.pool.acquire(x, y, color, 'second');
         }
         
@@ -96,14 +97,15 @@ class ParticleFactory {
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
+     * @param {boolean} [bypassPool=false] - Internal flag to prevent circular calls
      * @returns {InkDrop}
      */
-    createMinuteDrop(x, y, color) {
+    createMinuteDrop(x, y, color, bypassPool = false) {
         this._validatePosition(x, y);
         this._validateColor(color);
         
-        // ✨ Use pool if available
-        if (this.usePool) {
+        // ✨ Use pool if available (but not if called from pool itself)
+        if (this.usePool && !bypassPool) {
             return this.pool.acquire(x, y, color, 'minute');
         }
         
@@ -117,14 +119,15 @@ class ParticleFactory {
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
+     * @param {boolean} [bypassPool=false] - Internal flag to prevent circular calls
      * @returns {InkDrop}
      */
-    createHourDrop(x, y, color) {
+    createHourDrop(x, y, color, bypassPool = false) {
         this._validatePosition(x, y);
         this._validateColor(color);
         
-        // ✨ Use pool if available
-        if (this.usePool) {
+        // ✨ Use pool if available (but not if called from pool itself)
+        if (this.usePool && !bypassPool) {
             return this.pool.acquire(x, y, color, 'hour');
         }
         
@@ -138,14 +141,15 @@ class ParticleFactory {
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
+     * @param {boolean} [bypassPool=false] - Internal flag to prevent circular calls
      * @returns {InkDrop}
      */
-    createChimeDrop(x, y, color) {
+    createChimeDrop(x, y, color, bypassPool = false) {
         this._validatePosition(x, y);
         this._validateColor(color);
         
-        // ✨ Use pool if available
-        if (this.usePool) {
+        // ✨ Use pool if available (but not if called from pool itself)
+        if (this.usePool && !bypassPool) {
             return this.pool.acquire(x, y, color, 'chime');
         }
         

@@ -91,6 +91,14 @@ function mouseMoved() {
             const dy = mouseY - pmouseY;
             const speed = sqrt(dx * dx + dy * dy);
             
+            // ✨ NIELSEN #1: Visibility of system status
+            // Update mouse speed for visual feedback
+            app.currentMouseSpeed = speed;
+            app.mouseSpeedHistory.push(speed);
+            if (app.mouseSpeedHistory.length > 30) {
+                app.mouseSpeedHistory.shift();
+            }
+            
             if (speed > 0.5) {  // Only respond to meaningful movement
                 const force = createVector(dx, dy).normalize();
                 const strength = config.fluid.mouseForce.strength;
@@ -104,12 +112,17 @@ function mouseMoved() {
                 
                 // Create visible ink drops at mouse position for feedback
                 // PHILOSOPHY: Make distraction visible - every movement leaves a trace
-                if (factory && colorManager && clock && frameCount % 3 === 0) {  // Every 3 frames to avoid spam
+                // ✨ ADJUSTED: 1 drop per second, very small size
+                if (factory && colorManager && clock && frameCount % 60 === 0) {  // Every 60 frames = 1 second
                     const currentMinute = clock.getCurrentMinute();
                     const currentHour = clock.getCurrentHour();
                     const color = colorManager.getColorForTime(currentMinute, currentHour);
                     const drop = factory.createSecondDrop(mouseX, mouseY, color);
                     if (drop) {
+                        // ✨ Make mouse drops very small (30% of normal size)
+                        drop.targetSize = drop.targetSize * 0.3;
+                        drop.initialSize = drop.initialSize * 0.3;
+                        drop.size = drop.size * 0.3;
                         app.activeDrops.push(drop);
                     }
                 }
@@ -170,6 +183,10 @@ class Application {
         // ✨ Onboarding UX
         this.hasInteracted = false;
         this.onboardingAlpha = 255;
+        
+        // ✨ Mouse speed feedback
+        this.mouseSpeedHistory = [];
+        this.currentMouseSpeed = 0;
     }
 
     /**
@@ -515,6 +532,112 @@ class Application {
         if (fluid && typeof fluid.resetTurbulence === 'function') {
             fluid.resetTurbulence();
         }
+    }
+
+    /**
+     * Render mouse speed visual feedback
+     * ✨ NIELSEN'S HEURISTICS APPLIED:
+     * #1: Visibility of system status - Real-time speed indicator
+     * #2: Match real world - Color metaphor (cool=calm, warm=fast)
+     * #8: Aesthetic and minimalist design - Clean, unobtrusive UI
+     */
+    _renderMouseSpeedFeedback() {
+        // Only show if user is moving mouse
+        if (this.currentMouseSpeed <= 0.1) return;
+        
+        push();
+        
+        // NIELSEN #8: Minimalist design - Compact corner position
+        const x = width - 160;
+        const y = height - 110;
+        
+        // Calculate average speed (smoothing for better UX)
+        const avgSpeed = this.mouseSpeedHistory.length > 0 
+            ? this.mouseSpeedHistory.reduce((a, b) => a + b, 0) / this.mouseSpeedHistory.length 
+            : this.currentMouseSpeed;
+        
+        // NIELSEN #1: Clear status levels
+        const maxSpeed = 30;
+        const speedLevel = constrain(avgSpeed / maxSpeed, 0, 1);
+        
+        // NIELSEN #2: Match real world - Temperature metaphor
+        // Cool colors = calm/slow, Warm colors = active/fast
+        let feedbackColor;
+        let statusText;
+        let statusIcon;
+        
+        if (speedLevel < 0.3) {
+            feedbackColor = color(100, 180, 255); // Cool blue
+            statusText = "CALM";
+            statusIcon = "◯"; // Circle (stable)
+        } else if (speedLevel < 0.7) {
+            feedbackColor = color(255, 200, 80); // Warm yellow
+            statusText = "ACTIVE";
+            statusIcon = "◐"; // Half-circle (transitioning)
+        } else {
+            feedbackColor = color(255, 100, 100); // Hot red
+            statusText = "TURBULENT";
+            statusIcon = "◉"; // Filled circle (intense)
+        }
+        
+        // Semi-transparent background
+        fill(0, 180);
+        noStroke();
+        rect(x - 15, y - 15, 150, 90, 8);
+        
+        // NIELSEN #6: Recognition over recall - Icons + text
+        // Icon
+        fill(feedbackColor);
+        textSize(24);
+        textAlign(LEFT, TOP);
+        text(statusIcon, x, y - 5);
+        
+        // Status label
+        textSize(11);
+        textFont('monospace');
+        fill(200);
+        text("Attention State", x + 30, y);
+        
+        // NIELSEN #1: Clear current status
+        fill(feedbackColor);
+        textSize(16);
+        textStyle(BOLD);
+        text(statusText, x + 30, y + 18);
+        
+        // Progress bar (NIELSEN #1: Visual indicator)
+        const barWidth = 130;
+        const barHeight = 12;
+        const barY = y + 45;
+        
+        // Bar background with subtle border
+        stroke(100);
+        strokeWeight(1);
+        fill(30);
+        rect(x, barY, barWidth, barHeight, 6);
+        
+        // Animated bar fill
+        noStroke();
+        fill(feedbackColor);
+        const animatedLevel = lerp(0, speedLevel, 0.8); // Smooth animation
+        rect(x + 2, barY + 2, (barWidth - 4) * animatedLevel, barHeight - 4, 4);
+        
+        // NIELSEN #1: Numeric feedback for precision
+        fill(150);
+        textSize(9);
+        textStyle(NORMAL);
+        textAlign(RIGHT, TOP);
+        text(`${(speedLevel * 100).toFixed(0)}%`, x + barWidth, barY + 18);
+        
+        // Pulse effect for high activity (NIELSEN #1: Draw attention to important state)
+        if (speedLevel > 0.7) {
+            const pulseAlpha = (sin(frameCount * 0.2) + 1) * 60;
+            noFill();
+            stroke(feedbackColor.levels[0], feedbackColor.levels[1], feedbackColor.levels[2], pulseAlpha);
+            strokeWeight(2);
+            ellipse(x + 12, y + 3, 30, 30);
+        }
+        
+        pop();
     }
 
     /**

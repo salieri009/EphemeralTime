@@ -154,4 +154,43 @@ class InkDrip extends Particle {
     notifyParentDied() {
         this.parentDied = true;
     }
+    
+    /**
+     * Hook: Reset for object pooling
+     * PERFORMANCE: Reusing InkDrip instances reduces GC pressure
+     * 
+     * @param {Object} params - {color, parentSize}
+     */
+    onReset(params) {
+        const { color, parentSize } = params;
+        
+        if (typeof parentSize !== 'number' || parentSize <= 0) {
+            console.warn('InkDrip.onReset: invalid parentSize, using default');
+            this.parentSize = 10;
+        } else {
+            this.parentSize = parentSize;
+        }
+        
+        const dripConfig = this.config.drops.drip;
+        
+        // Reset domain properties
+        this.color = color;
+        
+        // Recalculate size
+        this.startRadius = this.parentSize * (dripConfig.sizeRatio || 0.15);
+        this.radius = this.startRadius;
+        
+        // Reset physics
+        this.maxSpeed = map(this.radius, 0, this.parentSize * 0.5, 1, dripConfig.maxSpeed || 2);
+        
+        // Reset state
+        this.parentDied = false;
+        this.hasBeenStamped = false;
+        this.stampProgress = 0;
+        
+        // Regenerate splatter if needed
+        if (this.splatterParticles) {
+            this.splatterParticles = [];
+        }
+    }
 }

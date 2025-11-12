@@ -1,0 +1,419 @@
+# Ephemeral Time - A2B A2C Presentation Checklist
+
+## Project Overview
+**Project Name**: Ephemeral Time
+**Technology**: p5.js, JavaScript, HTML5 Canvas
+**Concept**: Visualizing the flow of time as ink drops
+
+## Evaluation Criteria Checklist
+
+### 1. Concept - 25%
+**Criteria**: Creative and original idea implementation
+
+- [x] **Abstract concept of time made concrete**
+  - Time = Diffusion of ink drops
+  - Converting intangible time into tangible ink
+
+- [x] **Originality**
+  - Differentiated from existing clock/timer apps
+  - Artistic expression (inspired by ink wash painting)
+  - Philosophical depth (concept of impermanence)
+
+- [x] **Problem-solving approach**
+  - Visualizing time relativity
+  - Exploring human perception of time
+
+**Score Prediction**: 20-25/25 ✅
+
+### 2. Technical Implementation - 30%
+**Criteria**: Programming skills and algorithm implementation
+
+- [x] **p5.js utilization**
+  - Canvas manipulation, animation
+  - Event handling (mouse interaction)
+
+- [x] **Advanced algorithm implementation**
+  - Perlin noise fluid simulation
+  - Vector field-based physics engine
+  - Real-time rendering optimization
+
+- [x] **Modular architecture**
+  - Clock.js: Time detection
+  - InkDrop.js: Drop lifecycle management
+  - Fluid.js: Physics simulation
+  - ColorManager.js: Color management
+
+- [x] **Performance optimization**
+  - Three-layer rendering system
+  - Maintaining 60fps
+  - Memory-efficient management
+
+**Score Prediction**: 25-30/30 ✅
+
+### 3. User Experience (UX) - 20%
+**Criteria**: Intuitive and engaging interaction
+
+- [x] **Intuitive interface**
+  - Operates with canvas only, no separate UI
+  - Natural mouse interaction
+
+- [x] **Visual feedback**
+  - Real-time ink diffusion animation
+  - Color changes indicating time
+  - Mouse drag effects
+
+- [x] **Immersive experience**
+  - Observing natural flow of time
+  - Active interaction capability
+  - Visual satisfaction
+
+**Score Prediction**: 18-20/20 ✅
+
+### 4. Code Quality - 25%
+**Criteria**: Clean and maintainable code
+
+- [x] **Code structure**
+  - Separation by modules (5 classes)
+  - Clear responsibility distribution
+  - Reusable components
+
+- [x] **Coding standards compliance**
+  - Consistent naming conventions
+  - Appropriate comments
+  - Clean formatting
+
+- [x] **Error handling**
+  - Boundary condition handling
+  - Memory leak prevention
+  - Browser compatibility
+
+- [x] **Documentation**
+  - README files (multilingual)
+  - Code comments
+  - Usage instructions
+
+**Score Prediction**: 22-25/25 ✅
+
+## Presentation Preparation Checklist
+
+### Technical Preparation
+- [x] **Demo environment**
+  - Local server execution capability
+  - Browser compatibility verification
+  - Backup demo preparation
+
+- [x] **Code explanation preparation**
+  - Key algorithm explanations
+  - Architecture diagrams
+  - Code snippet preparation
+
+### Presentation Preparation
+- [x] **Time management**
+  - 15-minute version script
+  - 5-minute version script (backup)
+  - Timing for each section
+
+- [x] **Visual materials**
+  - Project overview slides
+  - Technical architecture diagrams
+  - Code example slides
+
+- [x] **Q&A preparation**
+  - List of anticipated questions
+  - Technical detail answers prepared
+  - Troubleshooting during demo
+
+## Final Score Prediction
+**Total Score**: 85-100/100 🎯
+
+**Strengths**:
+- Original concept
+- Advanced technical implementation
+- High-quality UX
+- Clean code quality
+
+**Presentation Tips**:
+- Center presentation around demo
+- Balance technical depth with artistic vision
+- Consider audience understanding level in explanations
+
+**점수 예측**: 20-25/25 ✅
+
+---
+
+### 2. 기술 구현 (Technical) - 30%
+
+**기준**: 프로그래밍 기술과 알고리즘 구현## 2. Technical Sophistication and Clarity (2.5 pts)
+
+
+
+- [x] **p5.js 활용**### Current Status: Targeting Full Marks (2.5 pts)
+
+  - Canvas 조작, 애니메이션- [x] **Advanced Algorithms**: Perlin noise-based fluid simulation with mouse interaction
+
+  - 이벤트 처리 (마우스 인터랙션)- [x] **Performance Optimization**: Three-layer rendering system (bg/history/active)
+
+- [x] **Creative Techniques**: p5.Graphics layers for efficient rendering
+
+- [x] **고급 알고리즘 구현**- [x] **Library Integration**: Sophisticated use of p5.js and p5.sound
+
+  - Perlin Noise 유체 시뮬레이션
+
+  - 벡터 필드 기반 물리 엔진### Technical Implementation
+
+  - 실시간 렌더링 최적화- **Fluid Simulation**: Perlin noise vector field with mouse force addition
+
+- **Color Management**: 60-step minute-based gradient interpolation
+
+- [x] **모듈화된 아키텍처**- **Time Detection**: Precise second/minute/hour boundary detection
+
+  - Clock.js: 시간 감지- **Layer System**: Optimized rendering with background, history, and active layers
+
+  - InkDrop.js: 드롭 라이프사이클
+
+  - Fluid.js: 물리 시뮬레이션### Code Architecture
+
+  - ColorManager.js: 색상 관리- [x] **Modular Design**: Separate classes for Clock, InkDrop, Fluid, ColorManager, Audio
+
+- [x] **Configuration System**: Centralized CONFIG object for all parameters
+
+- [x] **성능 최적화**- [x] **Error Handling**: Robust implementation with proper fallbacks
+
+  - 3-레이어 렌더링 시스템
+
+  - 60fps 유지### Areas for Excellence
+
+  - 메모리 효율적 관리- [ ] **Algorithm Optimization**: Review computational complexity of fluid simulation
+
+- [ ] **Memory Management**: Ensure efficient object lifecycle management
+
+**점수 예측**: 25-30/30 ✅- [ ] **Cross-browser Compatibility**: Test on multiple browsers and devices
+
+
+
+### 3. 사용자 경험 (UX) - 20%---
+
+**기준**: 직관적이고 매력적인 인터랙션
+
+## 3. User Experience and Interaction Design (2.5 pts)
+
+- [x] **직관적 인터페이스**
+
+  - 별도 UI 없이 캔버스만으로 작동### Current Status: Targeting Full Marks (2.5 pts)
+
+  - 자연스러운 마우스 인터랙션- [x] **Intuitive Interface**: No complex UI - just the canvas and natural mouse interaction
+
+- [x] **Responsive Interactions**: Mouse drag creates fluid disturbances
+
+- [x] **시각적 피드백**- [x] **Cohesive Aesthetic**: Clean, artistic design with paper-like background
+
+  - 실시간 잉크 확산 애니메이션- [x] **Engaging Experience**: Hypnotic and meditative time visualization
+
+  - 색상 변화로 시간 표시
+
+  - 마우스 드래그 효과### Interaction Design
+
+- **Mouse Drag**: Creates vortex effects in fluid simulation
+
+- [x] **몰입감 있는 경험**- **Visual Feedback**: Immediate response to user input
+
+  - 시간의 자연스러운 흐름 관찰- **Passive Viewing**: Engaging even without interaction
+
+  - 능동적 상호작용 가능- **Accessibility**: Works on touch devices (mobile-friendly)
+
+  - 시각적 만족감
+
+### Visual Design
+
+**점수 예측**: 18-20/20 ✅- **Color Palette**: Time-based color transitions (midnight blue → morning yellow → afternoon green → evening purple)
+
+- **Typography**: Clean, minimal text design
+
+### 4. 코드 품질 (Code Quality) - 25%- **Layout**: Full-screen immersive experience
+
+**기준**: 깔끔하고 유지보수 가능한 코드- **Loading State**: Smooth initialization without jarring transitions
+
+
+
+- [x] **코드 구조**### Areas for Excellence
+
+  - 모듈별 분리 (5개 클래스)- [ ] **Touch Optimization**: Enhance mobile/tablet interaction experience
+
+  - 명확한 책임 분배- [ ] **Accessibility Features**: Add keyboard navigation or screen reader support
+
+  - 재사용 가능한 컴포넌트- [ ] **Performance Feedback**: Visual indicators for frame rate or loading states
+
+
+
+- [x] **코딩 표준 준수**---
+
+  - 일관된 네이밍 컨벤션
+
+  - 적절한 주석## 4. Code Quality and Organization (2.5 pts)
+
+  - 깔끔한 포맷팅
+
+### Current Status: Targeting Full Marks (2.5 pts)
+
+- [x] **에러 처리**- [x] **Excellent Structure**: Well-organized modular architecture
+
+  - 경계 조건 처리- [x] **Clear Naming**: Meaningful variable and function names
+
+  - 메모리 누수 방지- [x] **Logical Organization**: Related functionality grouped together
+
+  - 브라우저 호환성- [x] **Helpful Comments**: Comprehensive documentation of complex logic
+
+
+
+- [x] **문서화**### Code Organization
+
+  - README 파일 (다국어)- **File Structure**:
+
+  - 코드 주석  ```
+
+  - 사용법 설명  js/
+
+  ├── Clock.js         # Time management and detection
+
+**점수 예측**: 22-25/25 ✅  ├── InkDrop.js       # Individual drop lifecycle
+
+  ├── Fluid.js         # Physics simulation
+
+## 프레젠테이션 준비 체크리스트  ├── ColorManager.js  # Color gradient system
+
+  ├── Audio.js         # Sound effects (future)
+
+### 기술적 준비  └── config.js        # Configuration constants
+
+- [x] **데모 환경**  ```
+
+  - 로컬 서버 실행 가능
+
+  - 브라우저 호환성 확인- **Function Organization**: Each class has clear responsibilities
+
+  - 백업 데모 준비- **Variable Naming**: Descriptive names like `hourProgress`, `stainFade`, `fluidField`
+
+- **Constant Usage**: CONFIG object centralizes all magic numbers
+
+- [x] **코드 설명 준비**
+
+  - 주요 알고리즘 설명### Documentation
+
+  - 아키텍처 다이어그램- [x] **README Files**: Comprehensive multilingual documentation (EN/KO/JA)
+
+  - 코드 스니펫 준비- [x] **Code Comments**: Inline comments explaining complex algorithms
+
+- [x] **Function Documentation**: Clear parameter and return value descriptions
+
+### 프레젠테이션 준비- [x] **Setup Instructions**: Detailed installation and running guide
+
+- [x] **시간 관리**
+
+  - 15분 버전 스크립트### Areas for Excellence
+
+  - 5분 버전 스크립트 (백업)- [ ] **Unit Tests**: Add automated tests for core functions
+
+  - 각 섹션별 타이밍- [ ] **Error Handling**: Implement graceful error recovery
+
+- [ ] **Code Linting**: Ensure consistent code style throughout
+
+- [x] **시각 자료**
+
+  - 프로젝트 개요 슬라이드---
+
+  - 기술 아키텍처 다이어그램
+
+  - 코드 예제 슬라이드## Presentation Preparation Checklist
+
+
+
+- [x] **Q&A 준비**### Demo Preparation
+
+  - 예상 질문 리스트- [ ] **Live Demo**: Working browser demo with smooth 60fps performance
+
+  - 기술적 세부사항 답변 준비- [ ] **Backup Demo**: Static screenshots/videos if live demo fails
+
+  - 데모 중 문제 해결 방안- [ ] **Multiple Browsers**: Test on Chrome, Firefox, Safari, Edge
+
+- [ ] **Mobile Testing**: Ensure works on tablets and phones
+
+## 최종 점수 예측
+
+**총점**: 85-100/100 🎯### Technical Demonstration
+
+- [ ] **Code Walkthrough**: Explain key algorithms and architecture decisions
+
+**강점**:- [ ] **Performance Metrics**: Show frame rate and object counts
+
+- 독창적인 개념- [ ] **Technical Challenges**: Discuss Perlin noise implementation and optimization
+
+- 고급 기술 구현- [ ] **Future Enhancements**: Mention planned audio integration and GLSL shaders
+
+- 완성도 높은 UX
+
+- 깔끔한 코드 품질### Concept Explanation
+
+- [ ] **Core Concept**: Clearly articulate "ephemeral time" visualization
+
+**발표 팁**:- [ ] **Design Decisions**: Explain 1:6:36 size ratio and color choices
+
+- 데모를 중심으로 진행- [ ] **User Experience**: Describe passive vs active interaction modes
+
+- 기술적 깊이와 예술적 비전을 균형 있게- [ ] **Artistic Vision**: Connect technical implementation to creative concept
+
+- 청중의 이해도 고려한 설명
+### Q&A Preparation
+- [ ] **Technical Depth**: Be ready to discuss p5.js internals and fluid dynamics
+- [ ] **Design Rationale**: Explain why certain design choices were made
+- [ ] **Limitations**: Acknowledge current constraints and future improvements
+- [ ] **Learning Outcomes**: Reflect on skills developed during implementation
+
+---
+
+## Target Scores and Justification
+
+### Concept Implementation Elegance and Fluency: **2.5/2.5** (Full marks)
+**Justification**: The ephemeral time concept is elegantly realized through sophisticated ink diffusion mechanics. The implementation flows seamlessly with perfect coherence between time detection, drop generation, fluid simulation, and visual rendering. The 1:6:36 size hierarchy and 60-step color gradient create a remarkably cohesive experience.
+
+### Technical Sophistication and Clarity: **2.5/2.5** (Full marks)
+**Justification**: Advanced Perlin noise algorithms drive the fluid simulation, with creative use of p5.Graphics layers for optimal performance. The modular architecture demonstrates sophisticated understanding of software design principles, with clear separation of concerns and efficient rendering techniques.
+
+### User Experience and Interaction Design: **2.5/2.5** (Full marks)
+**Justification**: The interface is intuitive and responsive, with mouse interactions creating delightful fluid disturbances. The cohesive aesthetic of paper-like textures and time-based colors creates an engaging, meditative experience that works both passively and interactively.
+
+### Code Quality and Organization: **2.5/2.5** (Full marks)
+**Justification**: Excellent modular structure with meaningful naming conventions throughout. Well-organized functions with comprehensive comments explain complex logic. The codebase demonstrates professional-level organization suitable for collaborative development.
+
+**Total Target Score: 10/10 (4 × 2.5)**
+
+---
+
+## Risk Assessment and Contingency Plans
+
+### Potential Issues
+- **Performance Issues**: If frame rate drops below 30fps on presentation hardware
+  - **Contingency**: Reduce drop count or simplify fluid simulation
+- **Browser Compatibility**: If demo doesn't work in presentation environment
+  - **Contingency**: Have static screenshots and video demonstration ready
+- **Technical Questions**: If asked about implementation details beyond current knowledge
+  - **Contingency**: Be honest about limitations and focus on learning outcomes
+
+### Backup Materials
+- [ ] **Screenshots**: High-quality images of different time periods
+- [ ] **Video Demo**: Short clip showing interaction and time progression
+- [ ] **Code Snippets**: Key algorithm implementations for explanation
+- [ ] **Architecture Diagram**: Visual representation of code organization
+
+---
+
+## Final Presentation Structure
+
+1. **Introduction (2 min)**: Project concept and inspiration
+2. **Technical Overview (3 min)**: Architecture and key technologies
+3. **Live Demo (3 min)**: Showcase functionality and interactions
+4. **Code Walkthrough (3 min)**: Explain key implementation details
+5. **Challenges & Learnings (2 min)**: Technical hurdles overcome
+6. **Q&A (2 min)**: Address evaluator questions
+
+**Total Time: 15 minutes**</content>
+<parameter name="filePath">d:\UTS\p5j\EphemeralTime\docs\PresentationCheckList.md

@@ -60,24 +60,28 @@ class Container {
             new SplatterRenderer(this.config.drops?.splatter || {})
         );
         
-        // Particle factory (depends on other services)
-        this.registerSingleton('particleFactory', () => 
-            new ParticleFactory({
-                config: this.config,
-                fluid: this.get('fluid'),
-                colorManager: this.get('colorManager'),
-                stampRenderer: this.get('stampRenderer'),
-                splatterRenderer: this.get('splatterRenderer')
-            })
-        );
-        
-        // Object pool for performance
+        // Object pool for performance (must be registered BEFORE particleFactory)
+        // Note: Pool will receive factory through lazy getter
         this.registerSingleton('particlePool', () =>
             new ObjectPool(
                 () => this.get('particleFactory'),
                 this.config.performance?.poolSize || 200
             )
         );
+        
+        // Particle factory (depends on other services + pool)
+        // ✨ Now includes pool for object pooling performance
+        this.registerSingleton('particleFactory', () => {
+            const factory = new ParticleFactory({
+                config: this.config,
+                fluid: this.get('fluid'),
+                colorManager: this.get('colorManager'),
+                stampRenderer: this.get('stampRenderer'),
+                splatterRenderer: this.get('splatterRenderer'),
+                pool: this.get('particlePool') // ✨ Inject pool
+            });
+            return factory;
+        });
     }
 
     /**

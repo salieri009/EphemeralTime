@@ -37,10 +37,12 @@ Thumbs.db
 .DS_Store
 
 # 개인 노트 (선택 사항)
-docs/
-docs/*
-docs/**/*.md
-docs/**/*.txt
-docs/**/*.pdf
+# Note: docs/ folder now contains project documentation (reflection, code review, etc.)
+# Only ignore specific personal notes, not all docs
+# docs/
+# docs/*
+# docs/**/*.md
+# docs/**/*.txt
+# docs/**/*.pdf
 notes/
 TODO.txt

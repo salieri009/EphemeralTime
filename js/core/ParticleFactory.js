@@ -24,6 +24,7 @@ class ParticleFactory {
      * @param {ColorManager} dependencies.colorManager - Color manager
      * @param {StampRenderer} dependencies.stampRenderer - Stamp renderer (shared)
      * @param {SplatterRenderer} dependencies.splatterRenderer - Splatter renderer (shared)
+     * @param {ObjectPool} [dependencies.pool] - Object pool for performance (optional)
      */
     constructor(dependencies) {
         // Validate required dependencies
@@ -34,6 +35,10 @@ class ParticleFactory {
         this.colorManager = dependencies.colorManager;
         this.stampRenderer = dependencies.stampRenderer;
         this.splatterRenderer = dependencies.splatterRenderer;
+        
+        // ✨ Object pooling for performance
+        this.pool = dependencies.pool || null;
+        this.usePool = !!this.pool;
         
         // Reusable dependency object (performance optimization)
         this._particleDeps = {
@@ -65,6 +70,8 @@ class ParticleFactory {
 
     /**
      * Create a second drop (1x scale, every second)
+     * Uses object pooling if available for performance
+     * 
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
@@ -74,11 +81,18 @@ class ParticleFactory {
         this._validatePosition(x, y);
         this._validateColor(color);
         
+        // ✨ Use pool if available
+        if (this.usePool) {
+            return this.pool.acquire(x, y, color, 'second');
+        }
+        
         return new InkDrop(x, y, color, 'second', this._particleDeps);
     }
 
     /**
      * Create a minute drop (6x scale, every minute)
+     * Uses object pooling if available for performance
+     * 
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
@@ -88,11 +102,18 @@ class ParticleFactory {
         this._validatePosition(x, y);
         this._validateColor(color);
         
+        // ✨ Use pool if available
+        if (this.usePool) {
+            return this.pool.acquire(x, y, color, 'minute');
+        }
+        
         return new InkDrop(x, y, color, 'minute', this._particleDeps);
     }
 
     /**
      * Create an hour drop (36x scale, every hour)
+     * Uses object pooling if available for performance
+     * 
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
@@ -102,11 +123,18 @@ class ParticleFactory {
         this._validatePosition(x, y);
         this._validateColor(color);
         
+        // ✨ Use pool if available
+        if (this.usePool) {
+            return this.pool.acquire(x, y, color, 'hour');
+        }
+        
         return new InkDrop(x, y, color, 'hour', this._particleDeps);
     }
 
     /**
      * Create a chime drop (special event drop)
+     * Uses object pooling if available for performance
+     * 
      * @param {number} x - X position
      * @param {number} y - Y position
      * @param {p5.Color} color - Drop color
@@ -115,6 +143,11 @@ class ParticleFactory {
     createChimeDrop(x, y, color) {
         this._validatePosition(x, y);
         this._validateColor(color);
+        
+        // ✨ Use pool if available
+        if (this.usePool) {
+            return this.pool.acquire(x, y, color, 'chime');
+        }
         
         return new InkDrop(x, y, color, 'chime', this._particleDeps);
     }

@@ -388,6 +388,9 @@ class Application {
         const inkDensity = this._calculateInkDensity();
         const viscosity = this._getViscosityFromDensity(inkDensity);
         
+        // Get pool for object recycling
+        const pool = this.container.get('particlePool');
+        
         // Update drops
         for (let i = this.activeDrops.length - 1; i >= 0; i--) {
             const drop = this.activeDrops[i];
@@ -401,13 +404,17 @@ class Application {
             }
             
             if (drop.isDead) {
+                // ✨ Return to pool instead of just removing
+                if (pool) {
+                    pool.release(drop);
+                }
                 this.activeDrops.splice(i, 1);
             } else {
                 drop.display(this.layers.active);
             }
         }
         
-        // Update drips
+        // Update drips (not pooled yet, but could be in future)
         for (let i = this.activeDrips.length - 1; i >= 0; i--) {
             const drip = this.activeDrips[i];
             drip.update();

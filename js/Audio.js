@@ -30,6 +30,7 @@ class Audio {
         // Pause state
         this.isPaused = false;
         
+        //need to check if audio is enabled in the config
         if (this.config.audio.enabled) {
             this.initGenerativeAudio();
         }
@@ -103,11 +104,6 @@ class Audio {
         if (this.isPaused) return;
 
         try {
-            // Debug: check config
-            console.log('Audio config:', this.config.audio);
-            console.log('DropSound oscillator:', this.config.audio.dropSound.oscillator);
-            console.log('PanRange:', this.config.audio.dropSound.oscillator.panRange);
-            
             // Create new oscillator for each drop (allows polyphony)
             const osc = new p5.Oscillator(this.config.audio.dropSound.oscillator.type);
             

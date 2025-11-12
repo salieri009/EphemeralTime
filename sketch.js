@@ -187,6 +187,9 @@ class Application {
         // ✨ Mouse speed feedback
         this.mouseSpeedHistory = [];
         this.currentMouseSpeed = 0;
+        
+        // ✨ Chime markers (permanent visual indicators)
+        this.chimeMarkers = []; // Array of {minute, hour, x, y} for each chime event
     }
 
     /**
@@ -299,6 +302,7 @@ class Application {
         audio.update(inkDensity);
         this._renderOnboarding(); // ✨ Onboarding UX cue
         this._renderKeyboardHelp(); // ✨ Keyboard shortcuts help
+        this._renderTimeProgressMarker(clock); // ✨ Time progress indicator
         this._updateUI(clock);
     }
 
@@ -393,7 +397,18 @@ class Application {
             const cymaticPattern = new CymaticPattern(centerX, centerY, data.minute);
             this.cymaticPatterns.push(cymaticPattern);
             
-            // 4. Strong audio feedback (bell-like)
+            // 4. Create permanent visual marker on history layer
+            this._createChimeMarker(centerX, centerY, data.minute, data.hour, dropColor);
+            
+            // 5. Store chime marker for time progress indicator
+            this.chimeMarkers.push({
+                minute: data.minute,
+                hour: data.hour,
+                x: centerX,
+                y: centerY
+            });
+            
+            // 6. Strong audio feedback (bell-like)
             audio.playDropSound(centerX, data.minute);
             console.log(`🔔 CHIME at ${data.minute} minutes - Cymatics pattern + fluid ripple`);
             
@@ -527,6 +542,7 @@ class Application {
         this.activeDrops = [];
         this.activeDrips = [];
         this.cymaticPatterns = []; // ✨ Clear patterns array
+        this.chimeMarkers = []; // ✨ Clear chime markers for new hour
         
         const fluid = this.container.get('fluid');
         if (fluid && typeof fluid.resetTurbulence === 'function') {
@@ -734,6 +750,145 @@ class Application {
             text("Press ? again to hide", 20, height - 25);
             
             pop();
+        }
+    }
+
+    /**
+     * Create permanent visual marker on history layer for Chime event
+     * PHILOSOPHY: Leave a trace that time has passed - natural ink stain like a temporal anchor
+     * Uses Oriental brush stamp effect to match project aesthetic
+     * 
+     * @param {number} x - Center X position
+     * @param {number} y - Center Y position
+     * @param {number} minute - Minute value (15, 30, or 45)
+     * @param {number} hour - Hour value
+     * @param {p5.Color} color - Marker color
+     */
+    _createChimeMarker(x, y, minute, hour, color) {
+        try {
+            const stampRenderer = this.container.get('stampRenderer');
+            
+            // Size varies by significance: 15min = subtle, 30min = medium, 45min = prominent
+            const baseSize = minute === 15 ? 25 : minute === 30 ? 35 : 50;
+            
+            // Add slight randomness for organic feel (like natural ink spreading)
+            const offsetX = random(-5, 5);
+            const offsetY = random(-5, 5);
+            const angle = random(-PI / 8, PI / 8); // Slight rotation for naturalness
+            
+            this.layers.history.push();
+            this.layers.history.blendMode(MULTIPLY);
+            
+            // Use StampRenderer for natural Oriental brush effect
+            // This creates the same organic ink stain as regular drops
+            stampRenderer.renderStamp(
+                this.layers.history,
+                x + offsetX,
+                y + offsetY,
+                baseSize,
+                color,
+                angle,
+                1.0 // Full opacity (immediate, not fade-in)
+            );
+            
+            // For 30 and 45 minutes, add additional subtle marks to indicate significance
+            // But keep them organic, not geometric
+            if (minute === 30) {
+                // Half hour: add one smaller companion stain
+                const companionSize = baseSize * 0.6;
+                const companionX = x + cos(angle + PI / 4) * baseSize * 0.4;
+                const companionY = y + sin(angle + PI / 4) * baseSize * 0.4;
+                stampRenderer.renderStamp(
+                    this.layers.history,
+                    companionX,
+                    companionY,
+                    companionSize,
+                    color,
+                    angle + random(-PI / 6, PI / 6),
+                    0.7 // Slightly more transparent
+                );
+            } else if (minute === 45) {
+                // Three-quarter hour: add two smaller companion stains
+                for (let i = 0; i < 2; i++) {
+                    const companionSize = baseSize * 0.5;
+                    const companionAngle = angle + (i === 0 ? -PI / 3 : PI / 3);
+                    const companionX = x + cos(companionAngle) * baseSize * 0.5;
+                    const companionY = y + sin(companionAngle) * baseSize * 0.5;
+                    stampRenderer.renderStamp(
+                        this.layers.history,
+                        companionX,
+                        companionY,
+                        companionSize,
+                        color,
+                        companionAngle + random(-PI / 6, PI / 6),
+                        0.6 // More transparent for subtlety
+                    );
+                }
+            }
+            
+            this.layers.history.pop();
+        } catch (error) {
+            console.error('Failed to create chime marker:', error);
+        }
+    }
+
+    /**
+     * Render time progress marker on screen edge
+     * PHILOSOPHY: Subtle visual memory of temporal anchors - like ink stains on paper edge
+     * Minimal, organic indicator that doesn't distract from the main experience
+     * 
+     * @param {Clock} clock - Clock instance
+     */
+    _renderTimeProgressMarker(clock) {
+        if (this.isZenMode) return; // Hide in zen mode
+        
+        try {
+            push();
+            
+            const markerWidth = 4; // Thinner, more subtle
+            const markerX = 15; // Closer to edge
+            const markerHeight = height * 0.5; // Shorter, less prominent
+            const markerY = height * 0.25; // Centered vertically
+            
+            // Current minute progress (0-59)
+            const currentMinute = clock.getCurrentMinute();
+            const progress = currentMinute / 59; // 0 to 1
+            
+            // Subtle ink-like stains for chime positions (only if they occurred)
+            const chimePositions = [15, 30, 45];
+            chimePositions.forEach(minute => {
+                const yPos = markerY + markerHeight - (markerHeight * (minute / 59));
+                const isActive = this.chimeMarkers.some(m => 
+                    m.minute === minute && m.hour === clock.getCurrentHour()
+                );
+                
+                if (isActive) {
+                    // Draw subtle organic stain (like ink bleeding)
+                    const colorManager = this.container.get('colorManager');
+                    const stainColor = colorManager.getColorForTime(minute, clock.getCurrentHour());
+                    
+                    // Organic stain shape (slightly irregular for natural feel)
+                    fill(red(stainColor), green(stainColor), blue(stainColor), 80);
+                    noStroke();
+                    
+                    // Size varies by significance
+                    const stainSize = minute === 15 ? 6 : minute === 30 ? 8 : 10;
+                    ellipse(markerX + markerWidth / 2, yPos, stainSize, stainSize);
+                }
+            });
+            
+            // Current position - very subtle dot (like a small ink drop)
+            const currentY = markerY + markerHeight - (markerHeight * progress);
+            const colorManager = this.container.get('colorManager');
+            const currentColor = colorManager.getColorForTime(currentMinute, clock.getCurrentHour());
+            
+            fill(red(currentColor), green(currentColor), blue(currentColor), 120);
+            noStroke();
+            ellipse(markerX + markerWidth / 2, currentY, 5, 5);
+            
+            pop();
+        } catch (error) {
+            console.error('Failed to render time progress marker:', error);
         }
     }
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-# Ephemeral Time: The Reservoir of Attention
+![header](https://capsule-render.vercel.app/api?type=wave&color=0:4d96ff,50:00d4ff,100:a855f7&height=200&section=header&text=Ephemeral%20Time&fontSize=80&fontColor=ffffff&desc=The%20Reservoir%20of%20Attention&descSize=24&descAlignY=65&animation=fadeIn)
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg) ![Version](https://img.shields.io/badge/Version-0.2.0-blue)
 

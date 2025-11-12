@@ -1,11 +1,18 @@
 /**
  * Container.js - Inversion of Control Container
  * 
- * ARCHITECTURE PHILOSOPHY: "Single Source of Truth"
+ * ARCHITECTURE PHILOSOPHY (from concept.md): "Single Source of Truth"
  * Enterprise Pattern: Dependency Injection Container
- * Eliminates global variables and manages service lifecycle with clarity.
+ * 
  * Just as time provides a universal reference frame, the Container provides
  * a universal service registry - one place to understand all dependencies.
+ * 
+ * This implements the "Enterprise-Grade Modularity" described in concept.md Section 2:
+ * - Eliminates global variables (except container itself)
+ * - Each component receives dependencies from the container
+ * - Clear separation of concerns
+ * - Easy testing via dependency injection
+ * - Lazy initialization (services created only when needed)
  * 
  * Benefits:
  * - Single source of truth for dependencies
@@ -36,6 +43,9 @@ class Container {
      * Factory pattern: delayed instantiation until first access
      */
     _registerFactories() {
+        // Configuration as a service (for consistency with IoC pattern)
+        this.registerSingleton('config', () => this.config);
+        
         // Core services
         this.registerSingleton('clock', () => new Clock(this.config));
         this.registerSingleton('fluid', () => new Fluid(this.config.fluid.resolution, this.config));

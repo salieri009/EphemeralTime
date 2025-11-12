@@ -70,6 +70,55 @@ function keyPressed() {
 }
 
 /**
+ * Mouse interaction - Apply force to fluid based on mouse movement
+ * 
+ * PHILOSOPHY (Pillar 3): "The Fluid as Attention Reservoir"
+ * Mouse movement represents distraction and scattered focus. The faster the mouse moves,
+ * the more turbulence is injected into the "attention reservoir," making the fluid less
+ * viscous and causing ink drops to spread chaotically. This creates a tangible feedback
+ * loop where the user's interaction directly reflects their mental state.
+ */
+function mouseMoved() {
+    if (app && !mouseIsPressed) {
+        const fluid = app.container.get('fluid');
+        const factory = app.container.get('particleFactory');
+        const colorManager = app.container.get('colorManager');
+        const clock = app.container.get('clock');
+        const config = app.container.get('config');
+        
+        if (fluid) {
+            const dx = mouseX - pmouseX;
+            const dy = mouseY - pmouseY;
+            const speed = sqrt(dx * dx + dy * dy);
+            
+            if (speed > 0.5) {  // Only respond to meaningful movement
+                const force = createVector(dx, dy).normalize();
+                const strength = config.fluid.mouseForce.strength;
+                
+                // Apply force to fluid at mouse position
+                fluid.addForceAtPoint(mouseX, mouseY, force, strength);
+                
+                // Add turbulence based on mouse speed
+                // PHILOSOPHY: Fast movement = scattered attention = high turbulence
+                fluid.addTurbulence(speed * 0.01);
+                
+                // Create visible ink drops at mouse position for feedback
+                // PHILOSOPHY: Make distraction visible - every movement leaves a trace
+                if (factory && colorManager && clock && frameCount % 3 === 0) {  // Every 3 frames to avoid spam
+                    const currentMinute = clock.getCurrentMinute();
+                    const currentHour = clock.getCurrentHour();
+                    const color = colorManager.getColorForTime(currentMinute, currentHour);
+                    const drop = factory.createSecondDrop(mouseX, mouseY, color);
+                    if (drop) {
+                        app.activeDrops.push(drop);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
  * Application - Main application class
  * Manages application lifecycle and coordinates all services
  * 
@@ -554,13 +603,19 @@ class Application {
     /**
      * Handle key press events
      * 
+     * PHILOSOPHY (Pillar 4): "Zen & Debug Modes - User Empowerment"
+     * Allows the user to control their experience:
+     * - Zen Mode: Experience time without numbers, encouraging pure perception
+     * - Debug Mode: Transparent view of system metrics for understanding
+     * - Pause: Take control of time's flow
+     * 
      * @param {string} key - Pressed key character
      * @param {number} keyCode - Key code
      * 
      * Controls:
      * - SPACE: Pause/Resume
-     * - Z: Toggle Zen Mode (hide time)
-     * - D: Toggle Debug Mode (show metrics)
+     * - Z: Toggle Zen Mode (hide time) - "Feel time, don't measure it"
+     * - D: Toggle Debug Mode (show metrics) - "Understand the mechanism"
      */
     handleKeyPress(key, keyCode) {
         if (key === ' ') {

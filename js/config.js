@@ -48,14 +48,14 @@ const CONFIG = {
         
         // Dripping effect (only for minute/hour drops)
         drip: {
-            enabled: true,                   // enable dripping effect
-            interval: 15,                    // frames between drip generation
-            sizeRatio: 0.15,                 // drip size relative to parent drop
-            maxSpeed: 2,                     // max drip velocity
-            fadeRate: 0.03,                  // how fast drip shrinks
-            gravityStrength: 0.15,           // downward pull
-            fluidInfluence: 0.8,             // how much drip follows fluid (0-1)
-            wobble: 0.3                      // horizontal randomness
+            enabled: true,
+            interval: 20,                    // Slower drip generation.
+            sizeRatio: 0.1,                  // Drips are smaller relative to the parent.
+            maxSpeed: 1.5,
+            fadeRate: 0.02,
+            gravityStrength: 0.05,           // Greatly reduced direct gravity pull. (Reduced from 0.15)
+            fluidInfluence: 0.9,             // Drips primarily follow the fluid's flow. (Increased from 0.8)
+            wobble: 0.2
         }
     },
 
@@ -139,20 +139,20 @@ const CONFIG = {
             maxValue: 1.0                    // maximum turbulence level
         },
         
-        // Mouse interaction (drag to create flow)
+        // Mouse interaction (drag to create flow) - ENHANCED for strong response
         mouseForce: {
             enabled: true,
-            radius: 120,                     // influence radius (px)
-            strength: 8,                     // vortex/drag strength
-            viscosityScales: true            // stronger drag = more ink viscous
+            radius: 200,                     // Larger influence area (increased from 120)
+            strength: 6.5,                   // Much stronger force (increased from 1.5)
+            viscosityScales: true
         },
         
-        // Viscosity (increases with accumulated ink)
+        // Fluidity model (inverse of viscosity). Higher value = more resistance.
         viscosity: {
             enabled: true,
-            baseValue: 0.95,                 // base friction multiplier
-            maxValue: 0.70,                  // max friction (heavy)
-            densityThreshold: 0.3            // when to start increasing viscosity
+            baseValue: 0.08,                 // Base resistance, allows easy spreading (reduced from 0.1)
+            maxValue: 0.85,                  // Max resistance when ink is dense (increased from 0.8)
+            densityThreshold: 0.15           // Faster transition to high viscosity (reduced from 0.2)
         }
     },
 
@@ -244,13 +244,20 @@ const CONFIG = {
     sun: {
         size: 20,
         yPosition: 30,
-        color: [255, 255, 0], // Bright yellow
+        color: [255, 220, 0], // More golden yellow
         coreOpacity: 255,
         coronaOpacity: 100,
         pulseSpeed: 0.05,
         pulseMagnitude: 0.2,
         repulsionRadius: 150,
-        repulsionStrength: 0.8               // reduced from 2 for gentler repulsion
+        repulsionStrength: 0.8,              // reduced from 2 for gentler repulsion
+        
+        // Sun-specific trail configuration
+        trail: {
+            enabled: true,
+            baseAlpha: 80,                   // Brighter, more prominent trail
+            sizeMultiplier: 0.5              // Smaller, sharper trail
+        }
     },
 
     // ========================================

@@ -1,14 +1,19 @@
 /**
  * CymaticPattern.js - Visual representation of sound waves
  * 
- * PHILOSOPHY: "See the sound, hear the time"
- * Chime drops create circular wave rings that radiate outward,
- * visualizing the ripple effect described in the concept document.
+ * PHILOSOPHY (Pillar 2): "Cymatics & Chimes - Seeing the Sound of Time"
+ * At 15, 30, and 45 minutes, a "Chime" event occurs. This doesn't just create
+ * a sound; it creates a *visible sound wave* (Cymatics) that physically interacts
+ * with the fluid. Sound becomes a tangible force, creating ripples in the
+ * "attention reservoir" that push and swirl the ink drops.
  * 
- * Pattern intensity corresponds to the minute:
- * - 15 minutes: 3 rings (quarter)
- * - 30 minutes: 6 rings (half)
- * - 45 minutes: 9 rings (three-quarters)
+ * This is a profound synesthetic experience where time is not just heard,
+ * but seen and felt as a physical force.
+ * 
+ * Pattern intensity corresponds to time's significance:
+ * - 15 minutes: 3 rings (quarter hour)
+ * - 30 minutes: 6 rings (half hour - more significant)
+ * - 45 minutes: 9 rings (three-quarters - most significant)
  * 
  * @class
  * @property {p5.Vector} pos - Pattern center position

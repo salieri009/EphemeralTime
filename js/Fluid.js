@@ -1,9 +1,21 @@
 /**
  * Fluid.js - Perlin Noise based fluid simulation
  * 
- * PHILOSOPHY: "Attention Reservoir"
- * - Calm state: high viscosity, clear traces (mindful)
- * - Distracted state: low viscosity, chaotic traces (scattered attention)
+ * PHILOSOPHY (Pillar 3): "The Fluid as Attention Reservoir"
+ * The canvas is not merely paper, but a fluid reservoir representing our mental state.
+ * The way ink behaves depends on the state of this reservoir:
+ * 
+ * - Calm state (High Focus): High viscosity → drops move slowly, leave clear traces
+ *   The mind is settled, moments are experienced fully and remembered clearly
+ * 
+ * - Turbulent state (Low Focus): Low viscosity → drops spread chaotically, blur together
+ *   The mind is scattered, moments diffuse and lose definition
+ * 
+ * TECHNICAL IMPLEMENTATION:
+ * - User mouse velocity injects turbulence (distraction)
+ * - Turbulence smoothly interpolates via targetTurbulence (attention inertia)
+ * - Turbulence modulates viscosity, creating the attention-behavior feedback loop
+ * - This system represents how attention is a finite resource that fills/empties gradually
  * 
  * @class
  * @property {number} resolution - Grid cell size in pixels

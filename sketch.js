@@ -146,6 +146,7 @@ class Application {
         // UX enhancements
         this.isZenMode = false;          // z key: hide time display for pure observation
         this.isDebugMode = false;        // d key: show performance metrics
+        this.showKeyboardHelp = false;   // ? key: show keyboard shortcuts
         
         // Graphics layers
         this.layers = {
@@ -280,6 +281,7 @@ class Application {
         const inkDensity = this._calculateInkDensity();
         audio.update(inkDensity);
         this._renderOnboarding(); // ✨ Onboarding UX cue
+        this._renderKeyboardHelp(); // ✨ Keyboard shortcuts help
         this._updateUI(clock);
     }
 
@@ -518,6 +520,7 @@ class Application {
     /**
      * Render subtle onboarding cue for first-time users
      * PHILOSOPHY: "Discovery without disruption" - guide intuitively without tutorials
+     * ✨ ENHANCED: More explicit multi-line instructions for better UX
      */
     _renderOnboarding() {
         if (!this.hasInteracted && this.onboardingAlpha > 0) {
@@ -533,10 +536,10 @@ class Application {
                 this.onboardingAlpha -= 5;
             }
 
-            // Render pulsing text near cursor
+            // ✨ Enhanced multi-line instructions
             push();
             textAlign(CENTER, CENTER);
-            textSize(16);
+            textSize(18);
             textFont('Georgia'); // Elegant, readable font
             
             // Gentle pulse effect
@@ -545,7 +548,68 @@ class Application {
             
             fill(100, alpha);
             noStroke();
-            text("Disturb the flow...", mouseX, mouseY - 40);
+            
+            // Multi-line instructions
+            const lines = [
+                "Move your mouse slowly...",
+                "then quickly...",
+                "Watch how time responds"
+            ];
+            
+            let yOffset = mouseY - 70;
+            lines.forEach((line, i) => {
+                text(line, mouseX, yOffset + i * 25);
+            });
+            
+            // ✨ Visual hint - pulsing circle around cursor
+            stroke(100, alpha * 0.5);
+            strokeWeight(2);
+            noFill();
+            const circleSize = 50 + sin(frameCount * 0.08) * 10;
+            ellipse(mouseX, mouseY, circleSize, circleSize);
+            
+            pop();
+        }
+    }
+
+    /**
+     * Render keyboard shortcuts help overlay
+     * ✨ USER EXPERIENCE: Makes controls discoverable
+     */
+    _renderKeyboardHelp() {
+        if (this.showKeyboardHelp) {
+            push();
+            
+            // Semi-transparent background
+            fill(0, 220);
+            noStroke();
+            rect(10, height - 180, 320, 170, 5);
+            
+            // Title
+            fill(255);
+            textSize(14);
+            textFont('monospace');
+            textAlign(LEFT, TOP);
+            text("KEYBOARD SHORTCUTS", 20, height - 170);
+            
+            // Shortcuts list
+            textSize(12);
+            const shortcuts = [
+                "SPACE : Pause/Resume",
+                "Z     : Zen Mode (hide time)",
+                "D     : Debug Mode (performance)",
+                "?     : Toggle this help"
+            ];
+            
+            shortcuts.forEach((line, i) => {
+                text(line, 20, height - 145 + i * 22);
+            });
+            
+            // Subtle hint
+            fill(150);
+            textSize(10);
+            text("Press ? again to hide", 20, height - 25);
+            
             pop();
         }
     }
@@ -572,6 +636,7 @@ class Application {
     /**
      * Render performance metrics overlay
      * TECHNICAL SOPHISTICATION: Real-time monitoring for optimization
+     * ✨ Now includes object pool statistics
      */
     _renderDebugOverlay() {
         // Update FPS history
@@ -581,11 +646,16 @@ class Application {
         }
         this.frameRateAverage = this.frameRateHistory.reduce((a, b) => a + b, 0) / this.frameRateHistory.length;
         
-        // Render overlay
+        // Get pool stats
+        const pool = this.container.get('particlePool');
+        const poolStats = pool ? pool.getStats() : null;
+        
+        // Render overlay (taller to fit pool stats)
         push();
         fill(0, 200);
         noStroke();
-        rect(10, 10, 250, 120, 5);
+        const overlayHeight = poolStats ? 180 : 120;
+        rect(10, 10, 280, overlayHeight, 5);
         
         fill(255);
         textSize(12);
@@ -595,6 +665,15 @@ class Application {
         text(`Drips: ${this.activeDrips.length}`, 20, 70);
         text(`Cymatics: ${this.cymaticPatterns.length}`, 20, 90);
         text(`Turbulence: ${(this.turbulenceLevel * 100).toFixed(1)}%`, 20, 110);
+        
+        // ✨ Pool statistics
+        if (poolStats) {
+            fill(100, 255, 100); // Green for pool stats
+            text(`Pool Active: ${poolStats.active}`, 20, 130);
+            text(`Pool Available: ${poolStats.available}`, 20, 150);
+            text(`Pool Created: ${poolStats.totalCreated}`, 20, 170);
+        }
+        
         pop();
     }
 
@@ -623,6 +702,7 @@ class Application {
      * - SPACE: Pause/Resume
      * - Z: Toggle Zen Mode (hide time) - "Feel time, don't measure it"
      * - D: Toggle Debug Mode (show metrics) - "Understand the mechanism"
+     * - ?: Toggle Keyboard Help - "Discover available controls"
      */
     handleKeyPress(key, keyCode) {
         if (key === ' ') {
@@ -634,6 +714,9 @@ class Application {
         } else if (key === 'd' || key === 'D') {
             this.isDebugMode = !this.isDebugMode;
             console.log(this.isDebugMode ? '🔧 Debug Mode: ON' : '🔧 Debug Mode: OFF');
+        } else if (key === '?' || key === '/') {
+            this.showKeyboardHelp = !this.showKeyboardHelp;
+            console.log(this.showKeyboardHelp ? '⌨️  Keyboard Help: ON' : '⌨️  Keyboard Help: OFF');
         }
     }
 }

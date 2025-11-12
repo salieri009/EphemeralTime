@@ -36,13 +36,11 @@ yarn.lock
 Thumbs.db
 .DS_Store
 
-# 개인 노트 (선택 사항)
-# Note: docs/ folder now contains project documentation (reflection, code review, etc.)
-# Only ignore specific personal notes, not all docs
-# docs/
-# docs/*
-# docs/**/*.md
-# docs/**/*.txt
-# docs/**/*.pdf
+# 개인 노트 및 문서 (선택 사항)
+# docs/ folder contains project documentation (reflection, code review, etc.)
+# These are personal development notes and should not be tracked
+docs/
+docs/*
+docs/**/*
 notes/
 TODO.txt
